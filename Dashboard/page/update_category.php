@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../../public");
+} else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
+    header("Location: ../../index.php");
+}
 require_once '../../app/controller/categories.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -34,8 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Update category
-        $category = new Categorie($nom, $description, $image_url);
-        // $category->setId($categoryId);
+        $category = new Categorie($nom, $description, $image_url,$categoryId);
         $result = $category->update();
 
         echo json_encode(['success' => true, 'message' => 'Catégorie mise à jour avec succès']);

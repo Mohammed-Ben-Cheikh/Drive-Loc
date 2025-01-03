@@ -6,6 +6,7 @@ class Review
     private $id;
     private $id_user_fk;
     private $id_vehicule_fk;
+    private $statut;
     private $rating;
     private $comment;
     private $created_at;
@@ -15,12 +16,14 @@ class Review
         $id = null,
         $id_user_fk,
         $id_vehicule_fk,
+        $statut = 'en attente',
         $rating,
         $comment
     ) {
         $this->id = $id;
         $this->id_user_fk = $id_user_fk;
         $this->id_vehicule_fk = $id_vehicule_fk;
+        $this->statut = $statut;
         $this->rating = $rating;
         $this->comment = $comment;
     }
@@ -29,12 +32,13 @@ class Review
     {
         $database = new Database();
         $db = $database->connect();
-        $sql = "INSERT INTO reviews (id_user_fk, id_vehicule_fk, rating, comment) 
-                VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO reviews (id_user_fk, id_vehicule_fk, statut, rating, comment) 
+                VALUES (?, ?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         $stmt->execute([
             $this->id_user_fk,
             $this->id_vehicule_fk,
+            $this->statut,
             $this->rating,
             $this->comment
         ]);
@@ -111,6 +115,18 @@ class Review
         $sql = "DELETE FROM reviews WHERE id = ?";
         $stmt = $db->prepare($sql);
         $result = $stmt->execute([$id]);
+        $database->disconnect();
+        return $result;
+    }
+
+    public static function updateStatut($id, $statut)
+    {
+
+        $database = new Database();
+        $db = $database->connect();
+        $sql = "UPDATE reviews SET statut = ? WHERE id = ?";
+        $stmt = $db->prepare($sql);
+        $result = $stmt->execute([$statut, $id]);
         $database->disconnect();
         return $result;
     }

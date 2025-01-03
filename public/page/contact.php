@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
+    header("Location: ../../dashboard");
+} else if (!isset($_SESSION['user_id']) && !$_SESSION['user_id']) {
+    header("Location: ../../index.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,6 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="../../src/output.css">
 </head>
 
@@ -25,7 +34,7 @@
                 </a>
             </div>
             <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                <a href="./php/logout.php"
+                <a href="../../authentification/logout.php"
                     class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 m-2">Logout</a>
                 <button data-collapse-toggle="navbar-user" type="button"
                     class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"

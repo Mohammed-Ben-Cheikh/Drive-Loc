@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
+    header("Location: ../dashboard");
+} else if (!isset($_SESSION['user_id']) && !$_SESSION['user_id']) {
+    header("Location: ../index.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -6,11 +14,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DriveLoc</title>
     <link rel="stylesheet" href="../src/output.css">
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="../public/css/style.css">
 </head>
 
 <body class="max-w-screen-xl flex flex-col mx-auto p-4 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen gap-8">
-<nav
+    <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
             <div
@@ -26,7 +35,7 @@
                 </a>
             </div>
             <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                <a href="./php/logout.php"
+                <a href="../authentification/logout.php"
                     class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 m-2">Logout</a>
                 <button data-collapse-toggle="navbar-user" type="button"
                     class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
@@ -60,7 +69,8 @@
                     </li>
                     <li>
                         <a href="./page/users.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Espace client</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Espace
+                            client</a>
                     </li>
                     <li>
                         <a href="./page/contact.php"
@@ -286,7 +296,8 @@
                             </svg>
                         </button>
                         <div class="px-6 pb-6 hidden">
-                            <p class="text-gray-600">La réservation se fait facilement en ligne ou par téléphone. Choisissez votre véhicule, vos dates et nous nous occupons du reste.</p>
+                            <p class="text-gray-600">La réservation se fait facilement en ligne ou par téléphone.
+                                Choisissez votre véhicule, vos dates et nous nous occupons du reste.</p>
                         </div>
                     </div>
 
@@ -302,7 +313,8 @@
                             </svg>
                         </button>
                         <div class="px-6 pb-6 hidden">
-                            <p class="text-gray-600">Notre flotte comprend des berlines de luxe, SUV premium, voitures de sport et véhicules électriques haut de gamme.</p>
+                            <p class="text-gray-600">Notre flotte comprend des berlines de luxe, SUV premium, voitures
+                                de sport et véhicules électriques haut de gamme.</p>
                         </div>
                     </div>
                     <!-- Add more FAQ items -->
@@ -317,7 +329,8 @@
                             </svg>
                         </button>
                         <div class="px-6 pb-6 hidden">
-                            <p class="text-gray-600">Il faut avoir plus de 21 ans, un permis de conduire valide depuis plus de 2 ans et une carte bancaire pour la caution.</p>
+                            <p class="text-gray-600">Il faut avoir plus de 21 ans, un permis de conduire valide depuis
+                                plus de 2 ans et une carte bancaire pour la caution.</p>
                         </div>
                     </div>
                 </div>

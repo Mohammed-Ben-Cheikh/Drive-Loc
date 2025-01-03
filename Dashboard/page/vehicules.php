@@ -1,7 +1,17 @@
 <?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../../public");
+} else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
+    header("Location: ../../index.php");
+}
+
 require_once '../../app/controller/categories.php';
 require_once '../../app/controller/vehicules.php';
+require_once '../../app/controller/statistiquesManager.php'; // Add this line to include the statistiquesManager
+
 $vehicules = Vehicule::getAll();
+$stats = StatistiquesManager::getVehicleStats(); // Add this line to get the statistics
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +21,7 @@ $vehicules = Vehicule::getAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drive-Loc Dashboard</title>
     <link rel="stylesheet" href="../../src/output.css">
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -108,7 +119,7 @@ $vehicules = Vehicule::getAll();
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../../authentification/logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>
@@ -126,12 +137,12 @@ $vehicules = Vehicule::getAll();
                     </a>
                 </div>
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-4">
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Total Catégories</p>
-                                <h3 class="text-3xl font-bold">12</h3>
+                                <p class="text-white/60">Total vehicule</p>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['total_vehicules']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-tags text-2xl"></i>
@@ -141,8 +152,19 @@ $vehicules = Vehicule::getAll();
                     <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-4">
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Véhicules Catégorisés</p>
-                                <h3 class="text-3xl font-bold">154</h3>
+                                <p class="text-white/60">Véhicules Disponibles</p>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['vehicules_disponibles']; ?></h3>
+                            </div>
+                            <div class="text-white/80 bg-white/10 p-3 rounded-lg">
+                                <i class="fas fa-car text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-red-600 to-red-800 rounded-xl p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-white/60">Véhicules Indisponibles</p>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['vehicules_indisponibles']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-car text-2xl"></i>
@@ -152,11 +174,11 @@ $vehicules = Vehicule::getAll();
                     <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-xl p-4">
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Catégorie la + Populaire</p>
-                                <h3 class="text-xl font-bold">SUV Premium</h3>
+                                <p class="text-white/60">Véhicules Réservés</p>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['vehicules_reserves']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
-                                <i class="fas fa-star text-2xl"></i>
+                                <i class="fas fa-car text-2xl"></i>
                             </div>
                         </div>
                     </div>

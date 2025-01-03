@@ -79,7 +79,7 @@ class User
     {
         $database = new Database();
         $db = $database->connect();
-        $sql = "SELECT * FROM user";
+        $sql = "SELECT * FROM users";
         $stmt = $db->query($sql);
         $database->disconnect();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -139,15 +139,46 @@ class User
         return $result;
     }
 
+    // Update - Mettre à jour le mot de passe d'un utilisateur
+    public static function updatePassword($email, $hashed_password) {
+        $database = new Database();
+        $db = $database->connect();
+        
+        $sql = "UPDATE users SET mot_de_passe = ? WHERE email = ?";
+        $stmt = $db->prepare($sql);
+        $result = $stmt->execute([$hashed_password, $email]);
+        
+        $database->disconnect();
+        return $result;
+    }
+
     // Delete - Supprimer un utilisateur
     public static function delete($id)
     {
         $database = new Database();
         $db = $database->connect();
-        $sql = "DELETE FROM user WHERE id_user = ?";
-        $stmt = $db->prepare($sql);
-        $result = $stmt->execute([$id]);
-        $database->disconnect();
-        return $result;
+        
+        try {
+            $db->beginTransaction();
+            
+            // Delete related reservations first
+            $sql = "DELETE FROM reservations WHERE id_user_fk = ?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            
+            // Then delete the user
+            $sql = "DELETE FROM users WHERE id_user = ?";
+            $stmt = $db->prepare($sql);
+            $result = $stmt->execute([$id]);
+            
+            $db->commit();
+            return $result;
+            
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception("Impossible de supprimer l'utilisateur : " . $e->getMessage());
+        } finally {
+            $database->disconnect();
+        }
     }
 }

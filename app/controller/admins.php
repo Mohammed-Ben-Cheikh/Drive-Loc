@@ -125,6 +125,18 @@ class Admin
         return $result;
     }
 
+    public static function updatePassword($email, $hashed_password) {
+        $database = new Database();
+        $db = $database->connect();
+        
+        $sql = "UPDATE admins SET mot_de_passe = ? WHERE email = ?";
+        $stmt = $db->prepare($sql);
+        $result = $stmt->execute([$hashed_password, $email]);
+        
+        $database->disconnect();
+        return $result;
+    }
+
     public static function delete($id)
     {
         $database = new Database();

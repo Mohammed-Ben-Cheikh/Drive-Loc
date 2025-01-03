@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../../public");
+} else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
+    header("Location: ../../index.php");
+}
 require_once '../../app/database/Database.php';
 require_once '../../app/controller/categories.php';
 require_once '../../app/controller/statistiquesManager.php';
@@ -46,6 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 $stats = StatistiquesManager::getDashboardStats();
+$mostPopularCategory = Categorie::getMostPopularCategory(); // Add this line to get the most popular category
 
 // Get all categories
 $categories = Categorie::getAll();
@@ -71,6 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drive-Loc Dashboard</title>
     <link rel="stylesheet" href="../../src/output.css">
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -168,7 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../../authentification/logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>
@@ -215,7 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">Catégorie la + Populaire</p>
-                                <h3 class="text-xl font-bold">SUV Premium</h3>
+                                <h3 class="text-xl font-bold"><?php echo !empty($mostPopularCategory['nom']) ? htmlspecialchars($mostPopularCategory['nom']) : "Aucune catégorie"; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-star text-2xl"></i>
@@ -416,7 +424,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                                             class="hidden absolute bottom-3 left-3 right-3 text-sm text-gray-400">
                                             <span id="fileNameEdit"></span>
                                         </div>
-                                        <div id="imagePreviewEdit"
+                                        <div id="currentImage"
                                             class="absolute top-2 right-2 w-16 h-16 rounded-lg overflow-hidden bg-gray-700">
                                             <img src="" alt="Aperçu" class="w-full h-full object-cover">
                                         </div>
@@ -486,18 +494,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     const formData = new FormData(form);
                     const submitBtn = form.querySelector('#submitBtn');
                     const spinner = form.querySelector('#loadingSpinner');
-                    const editId = form.getAttribute('data-edit-id');
 
                     // Show loading state
                     submitBtn.disabled = true;
                     spinner.classList.remove('hidden');
 
-                    // Ajouter l'ID si on est en mode édition
-                    if (editId) {
-                        formData.append('id', editId);
-                    }
-
-                    fetch(editId ? 'update_category.php' : window.location.href, {
+                    fetch(window.location.href, {
                         method: 'POST',
                         body: formData
                     })
@@ -545,7 +547,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     const file = event.target.files[0];
                     const fileInfo = document.getElementById('fileInfoEdit');
                     const fileName = document.getElementById('fileNameEdit');
-                    const preview = document.getElementById('imagePreviewEdit');
+                    const preview = document.getElementById('currentImage');
                     const previewImg = preview.querySelector('img');
 
                     if (file) {
@@ -632,7 +634,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     const modal = document.getElementById('editCategoryModal');
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
-                    
+
                     // Fetch category data
                     fetch(`get_category.php?id=${categoryId}`)
                         .then(response => response.json())
@@ -643,7 +645,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
                             // Show current image if exists
                             const currentImage = document.querySelector('#currentImage img');
-                            if (category.image_url) {
+                            if (currentImage && category.image_url) {
                                 currentImage.src = '../' + category.image_url;
                                 currentImage.classList.remove('hidden');
                             }
@@ -659,7 +661,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
                     document.getElementById('editCategoryForm').reset();
-                    document.querySelector('#currentImage img').classList.add('hidden');
+                    const currentImage = document.querySelector('#currentImage img');
+                    if (currentImage) {
+                        currentImage.classList.add('hidden');
+                    }
                 }
 
                 function handleEditSubmit(event) {
@@ -668,7 +673,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     const formData = new FormData(form);
                     const submitBtn = form.querySelector('#submitEditBtn');
                     const spinner = form.querySelector('#loadingEditSpinner');
-
                     // Show loading state
                     submitBtn.disabled = true;
                     spinner.classList.remove('hidden');
@@ -708,13 +712,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 // Handle Mobile Adjustments
                 function handleMobileAdjustments() {
                     const isMobile = window.innerWidth < 768;
-                    Chart.defaults.font.size = isMobile ? 10 : 12;
-
                     // Update chart configurations for mobile
-                    if (charts.revenue) {
-                        charts.revenue.options.scales.y.ticks.maxTicksLimit = isMobile ? 5 : 8;
-                        charts.revenue.update('none');
-                    }
                 }
 
                 // Sidebar Toggle Handler
@@ -741,7 +739,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 function initialize() {
                     setupSidebarToggle();
                     handleMobileAdjustments();
-                    initCharts();
                 }
 
                 // Event Listeners
@@ -753,7 +750,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                     clearTimeout(resizeTimeout);
                     resizeTimeout = setTimeout(() => {
                         handleMobileAdjustments();
-                        initCharts(); // Reinitialize charts on resize
                     }, 250);
                 });
             </script>

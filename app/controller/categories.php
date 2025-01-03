@@ -63,7 +63,7 @@ class Categorie
     {
         $database = new Database();
         $db = $database->connect();
-           $sql = "UPDATE categories SET nom = ?, description = ?, 
+        $sql = "UPDATE categories SET nom = ?, description = ?, 
                 image_url = ? WHERE id_categorie = ?";
         $stmt = $db->prepare($sql);
         $result = $stmt->execute([
@@ -85,6 +85,21 @@ class Categorie
         $result = $stmt->execute([$id]);
         $database->disconnect();
         return $result;
+    }
+
+    public static function getMostPopularCategory()
+    {
+        $database = new Database();
+        $db = $database->connect();
+        $query = "SELECT c.*, COUNT(v.id_vehicule) as vehicle_count 
+                    FROM categories c 
+                    LEFT JOIN vehicules v ON c.id_categorie = v.id_categorie_fk 
+                    GROUP BY c.id_categorie 
+                    ORDER BY vehicle_count DESC 
+                    LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 

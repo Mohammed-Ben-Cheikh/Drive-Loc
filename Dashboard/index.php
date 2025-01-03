@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../public");
+} else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
+    header("Location: ../index.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drive-Loc Dashboard</title>
     <link rel="stylesheet" href="../src/output.css">
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -89,7 +98,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-4 z-50">
                         <button class="p-2 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-bell"></i>
                         </button>
@@ -105,7 +114,7 @@
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../authentification/logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>

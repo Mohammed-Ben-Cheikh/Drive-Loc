@@ -1,5 +1,15 @@
 <?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../../public");
+} else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
+    header("Location: ../../index.php");
+}
 require_once '../../app/controller/users.php';
+require_once '../../app/controller/statistiquesManager.php'; // Add this line to include the statistiquesManager
+
+$stats = StatistiquesManager::getDashboardStats(); // Add this line to get the statistics
+$users = User::getAll(); // Add this line to get all users
 ?>
 
 <!DOCTYPE html>
@@ -10,6 +20,7 @@ require_once '../../app/controller/users.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drive-Loc Dashboard</title>
     <link rel="stylesheet" href="../../src/output.css">
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -107,7 +118,7 @@ require_once '../../app/controller/users.php';
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../../authentification/logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>
@@ -131,7 +142,7 @@ require_once '../../app/controller/users.php';
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">Total Utilisateurs</p>
-                                <h3 class="text-3xl font-bold">1,234</h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['total_clients']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-users text-2xl"></i>
@@ -142,7 +153,7 @@ require_once '../../app/controller/users.php';
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">Utilisateurs Actifs</p>
-                                <h3 class="text-3xl font-bold">892</h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['total_clients']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-user-check text-2xl"></i>
@@ -153,7 +164,7 @@ require_once '../../app/controller/users.php';
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">Nouveaux ce mois</p>
-                                <h3 class="text-3xl font-bold">156</h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['total_clients']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-user-plus text-2xl"></i>
@@ -164,7 +175,7 @@ require_once '../../app/controller/users.php';
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">À Vérifier</p>
-                                <h3 class="text-3xl font-bold">23</h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stats['total_clients']; ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-user-clock text-2xl"></i>
@@ -224,45 +235,45 @@ require_once '../../app/controller/users.php';
                                 </tr>
                             </thead>
                             <tbody class="bg-dark-light divide-y divide-gray-700">
-                                <?php for($i = 0; $i < 10; $i++): ?>
-                                <tr class="hover:bg-gray-800/50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=John+Doe" alt="">
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium">John Doe</div>
-                                                <div class="text-sm text-gray-400">Inscrit le 01/03/2024</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm">john.doe@example.com</div>
-                                        <div class="text-sm text-gray-400">+33 6 12 34 56 78</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Actif
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm">BMW M3 Competition</div>
-                                        <div class="text-sm text-gray-400">Il y a 2 jours</div>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <div class="flex space-x-2">
-                                            <button class="text-blue-400 hover:text-blue-300">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="text-red-400 hover:text-red-300">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="text-yellow-400 hover:text-yellow-300">
-                                                <i class="fas fa-ban"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endfor; ?>
+                                <?php if (empty($users)): ?>
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-400">Aucun utilisateur trouvé</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($users as $user): ?>
+                                        <tr class="hover:bg-gray-800/50">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['nom'] . ' ' . $user['prenom']); ?>" alt="">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium"><?php echo htmlspecialchars($user['nom'] . ' ' . $user['prenom']); ?></div>
+                                                        <div class="text-sm text-gray-400">Inscrit le <?php echo date('d/m/Y', strtotime($user['date_creation'])); ?></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm"><?php echo htmlspecialchars($user['email']); ?></div>
+                                                <div class="text-sm text-gray-400"><?php echo htmlspecialchars($user['telephone']); ?></div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Actif
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm">BMW M3 Competition</div>
+                                                <div class="text-sm text-gray-400">Il y a 2 jours</div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-red-400 hover:text-red-300" onclick="deleteUser(<?php echo $user['id_user']; ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -300,13 +311,6 @@ require_once '../../app/controller/users.php';
         // Handle Mobile Adjustments
         function handleMobileAdjustments() {
             const isMobile = window.innerWidth < 768;
-            Chart.defaults.font.size = isMobile ? 10 : 12;
-
-            // Update chart configurations for mobile
-            if (charts.revenue) {
-                charts.revenue.options.scales.y.ticks.maxTicksLimit = isMobile ? 5 : 8;
-                charts.revenue.update('none');
-            }
         }
 
         // Sidebar Toggle Handler
@@ -328,14 +332,6 @@ require_once '../../app/controller/users.php';
                 }
             });
         }
-
-        // Initialize Everything
-        function initialize() {
-            setupSidebarToggle();
-            handleMobileAdjustments();
-            initCharts();
-        }
-
         // Event Listeners
         document.addEventListener('DOMContentLoaded', initialize);
 
@@ -345,9 +341,29 @@ require_once '../../app/controller/users.php';
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 handleMobileAdjustments();
-                initCharts(); // Reinitialize charts on resize
             }, 250);
         });
+
+        function deleteUser(userId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                fetch(`../../app/action/admin/user/delete.php?id=${userId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erreur: ' + error.message);
+                });
+            }
+        }
     </script>
     <script src="../js/script.js"></script>
 </body>

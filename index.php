@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ./public");
+} else if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']){
+    header("Location: ./dashboard");
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -26,8 +34,10 @@
                 </a>
             </div>
             <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                <a href="./authentification/login.php" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 m-2">Login</a>
-                <a href="./authentification/signup.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 m-2">Sign
+                <a href="./authentification/login.php"
+                    class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 m-2">Login</a>
+                <a href="./authentification/signup.php"
+                    class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 m-2">Sign
                     Up</a>
             </div>
         </div>
@@ -53,7 +63,7 @@
                             Une fusion parfaite entre tradition et innovation gastronomique.
                         </p>
                         <div class="flex flex-wrap gap-6">
-                            <a href="Login.php"
+                            <a href="./authentification/signup.php"
                                 class="group relative px-8 py-4 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600">
                                 <div
                                     class="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform">

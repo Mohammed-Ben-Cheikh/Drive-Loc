@@ -1,9 +1,13 @@
 <?php
 session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../public");
+} else if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
+    header("Location: ../../dashboard");
+}
 require_once '../app/controller/users.php';
 require_once '../app/controller/admins.php';
 $error = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email = $_POST['email'];
@@ -13,24 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $admin = Admin::getByEmail($email);
     if ($user && password_verify($password, $user['mot_de_passe'])) {
         $_SESSION['user_id'] = $user['id_user'];
+        $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['id_role_fk'];
-
-        // Redirection selon le rôle
-        if ($user['id_role_fk'] === 3) { // Utilisateur
-            header('Location: ../public');
-        }
+        $_SESSION['user_nom'] = $user['nom'];
+        $_SESSION['user_prenom'] = $user['prenom'];
+        $_SESSION['user_adresse'] = $user['adresse'];
+        header('Location: ../dashboard');
         exit();
-
     } else if ($admin && password_verify($password, $admin['mot_de_passe'])) {
         $_SESSION['admin_id'] = $admin['id_admin'];
+        $_SESSION['admin_email'] = $admin['email'];
         $_SESSION['admin_role'] = $admin['id_role_fk'];
-
-        // Redirection selon le rôle
-        if ($admin['id_role_fk'] === 1 || $admin['id_role_fk'] === 2) { // Admin
-            header('Location: ../Dashboard');
-        }
+        $_SESSION['admin_nom'] = $admin['nom'];
+        $_SESSION['admin_prenom'] = $admin['prenom'];
+        header('Location: ../dashboard');
         exit();
-        
     } else {
         $error = 'Email ou mot de passe incorrect';
     }
@@ -115,6 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="block text-sm font-medium text-white">Mot de passe :</label>
                             <input type="password" name="password" required
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                            <div class="flex justify-end mt-2">
+                                <a href="forgot-password.php" class="text-sm text-indigo-400 hover:text-indigo-300 transition duration-150">
+                                    Mot de passe oublié ?
+                                </a>
+                            </div>
                         </div>
 
                         <button type="submit"

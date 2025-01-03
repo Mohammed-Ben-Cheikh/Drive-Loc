@@ -8,54 +8,32 @@ class Reservation
     private $id_vehicule_fk;
     private $date_reservation;
     private $statut;
+    private $pickup_location;
     private $commentaire;
-    private $date_creation;
     private $if_reser_modif;
-    private $date_modification;
     private $date_limite;
 
     public function __construct(
-        $id_reservation = null,
         $id_user_fk,
         $id_vehicule_fk,
         $date_reservation,
+        $pickup_location,
+        $date_limite,
         $statut = 'en attente',
         $commentaire = null,
         $if_reser_modif = 'no',
-        $date_limite
+        $id_reservation = null
     ) {
         $this->id_reservation = $id_reservation;
         $this->id_user_fk = $id_user_fk;
         $this->id_vehicule_fk = $id_vehicule_fk;
         $this->date_reservation = $date_reservation;
         $this->statut = $statut;
+        $this->pickup_location = $pickup_location;
         $this->commentaire = $commentaire;
         $this->if_reser_modif = $if_reser_modif;
         $this->date_limite = $date_limite;
     }
-
-    public function create()
-    {
-        $database = new Database();
-        $db = $database->connect();
-        $sql = "INSERT INTO reservations (
-            id_user_fk, id_vehicule_fk, date_reservation,
-            statut, commentaire, if_reser_modif, date_limite
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([
-            $this->id_user_fk,
-            $this->id_vehicule_fk,
-            $this->date_reservation,
-            $this->statut,
-            $this->commentaire,
-            $this->if_reser_modif,
-            $this->date_limite
-        ]);
-        $database->disconnect();
-        return $db->lastInsertId();
-    }
-
     public static function getAll()
     {
         $database = new Database();
@@ -117,7 +95,7 @@ class Reservation
         $database = new Database();
         $db = $database->connect();
         $sql = "UPDATE reservations SET 
-                date_reservation = ?, statut = ?,
+                date_reservation = ?, statut = ?, lieux = ?,
                 commentaire = ?, if_reser_modif = ?,
                 date_limite = ?
                 WHERE id_reservation = ?";
@@ -125,6 +103,7 @@ class Reservation
         $result = $stmt->execute([
             $this->date_reservation,
             $this->statut,
+            $this->pickup_location,
             $this->commentaire,
             $this->if_reser_modif,
             $this->date_limite,
@@ -144,6 +123,47 @@ class Reservation
         $database->disconnect();
         return $result;
     }
+
+    public static function updateStatut($id, $statut)
+    {
+        $database = new Database();
+        $db = $database->connect();
+        $sql = "UPDATE reservations SET statut = ? WHERE id_reservation = ?";
+        $stmt = $db->prepare($sql);
+        $result = $stmt->execute([$statut, $id]);
+        $database->disconnect();
+        return $result;
+    }
+
+    public function ajouterReservationAvecProcedure()
+    {
+        $database = new Database();
+        $db = $database->connect();
+        try {
+            $sql = "CALL AjouterReservation(?, ?, ?, ?, ?, ?)";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                $this->id_user_fk,
+                $this->id_vehicule_fk,
+                $this->date_reservation,
+                $this->pickup_location,
+                $this->commentaire,
+                $this->date_limite
+            ]);
+            $database->disconnect();
+            return [
+                'success' => true,
+                'message' => "Réservation ajoutée avec succès."
+            ];
+        } catch (PDOException $e) {
+            $database->disconnect();
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+    
 }
 
 

@@ -86,7 +86,8 @@ CREATE TABLE `reservations` (
     `id_user_fk` INT(11) NOT NULL,                                 
     `id_vehicule_fk` INT(11) NOT NULL,                             
     `date_reservation` DATETIME NOT NULL,                                                   
-    `statut` ENUM('en attente', 'approuvée', 'refusée', 'terminée') DEFAULT 'en attente', 
+    `statut` ENUM('en attente', 'approuvée', 'refusée', 'terminée') DEFAULT 'en attente',
+    `lieux` VARCHAR(255) NOT NULL,   
     `commentaire` TEXT,                                            
     `date_creation` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           
     `if_reser_modif` ENUM('yes','no') DEFAULT 'no',                
@@ -100,7 +101,8 @@ CREATE TABLE `reservations` (
 CREATE TABLE `reviews` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,                
     `id_user_fk` INT NOT NULL,                              
-    `id_vehicule_fk` INT NOT NULL,                           
+    `id_vehicule_fk` INT NOT NULL,
+                               
     `rating` INT CHECK (rating >= 1 AND rating <= 5),     
     `comment` TEXT,                                      
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
@@ -132,6 +134,15 @@ CREATE TABLE `messages` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE password_resets (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP,
+    used BOOLEAN DEFAULT FALSE
+);
+
 INSERT INTO `roles` (`role`) VALUES
 ('SuperAdmin'),
 ('Admin'),
@@ -156,3 +167,4 @@ INSERT INTO `vehicules` (`nom`, `prix_a_loue`, `description`, `id_categorie_fk`,
 ('Honda Civic', 50.00, 'A compact car perfect for city driving.', 2, 'DEF-5678', 'Honda', 'Civic', 2018, 'oui', 'Manuelle', '5', 'Non', 40000.00, 'Essence', 5, 4, 'Disponible', 2, 'honda_civic.jpg', 10),
 ('BMW 7 Series', 200.00, 'Luxury sedan with top-notch features.', 3, 'GHI-9101', 'BMW', '7 Series', 2022, 'oui', 'Automatique', '8', 'Ouvrant', 15000.00, 'Diesel', 5, 4, 'Réservé', 5, 'bmw_7series.jpg', 5),
 ('Tesla Model 3', 120.00, 'High-performance electric car.', 4, 'JKL-2345', 'Tesla', 'Model 3', 2021, 'oui', 'Automatique', '1', 'Fixe', 12000.00, 'Électrique', 5, 4, 'Disponible', 4, 'tesla_model3.jpg', 8);
+

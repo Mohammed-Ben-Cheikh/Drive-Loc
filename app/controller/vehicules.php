@@ -229,6 +229,16 @@ class Vehicule
         return $result;
     }
 
+    public static function updateDisponibilite($id, $disponibilite)
+    {
+        $database = new Database();
+        $db = $database->connect();
+        $sql = "UPDATE vehicules SET disponibilite = ? WHERE id_vehicule = ?";
+        $stmt = $db->prepare($sql);
+        $result = $stmt->execute([$disponibilite, $id]);
+        $database->disconnect();
+        return $result;
+    }
 }
 
 

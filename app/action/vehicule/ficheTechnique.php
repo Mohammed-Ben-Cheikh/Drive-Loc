@@ -32,7 +32,7 @@
                         <div
                             class="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-400 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
                         </div>
-                        <h1 class="text-xl text-blue-700">retournes a la page vehicules</h1>
+                        <h1 class="text-xl text-blue-700">la page vehicules</h1>
                         </h1>
                     </div>
                 </a>
@@ -151,7 +151,7 @@
                             <!-- Action Buttons -->
                             <div class="flex gap-4">
                                 <?php if ($vehicule['disponibilite'] === 'Disponible'): ?>
-                                    <a href="../reservation/create.php?vehicule=<?php echo $vehicule['id_vehicule']; ?>"
+                                    <a href="/public/page/addCommand.php?id=<?php echo $vehicule['id_vehicule']; ?>"
                                         class="flex-1 bg-blue-600 text-white text-center py-3 rounded-xl hover:bg-blue-700 transition">
                                         Réserver maintenant
                                     </a>

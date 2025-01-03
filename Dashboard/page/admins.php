@@ -1,6 +1,13 @@
 <?php
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+    header("Location: ../../public");
+} else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
+    header("Location: ../../index.php");
+}
+
 require_once '../../app/controller/admins.php';
-$admin = Admin::getById(1); // Récupérer les informations de l'administrateur (id = 1)
+$admin = Admin::getById($_SESSION['admin_id']); // Récupérer les informations de l'administrateur (id = 1)
 ?>
 
 <!DOCTYPE html>
@@ -11,6 +18,7 @@ $admin = Admin::getById(1); // Récupérer les informations de l'administrateur 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drive-Loc Dashboard</title>
     <link rel="stylesheet" href="../../src/output.css">
+    <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -108,7 +116,8 @@ $admin = Admin::getById(1); // Récupérer les informations de l'administrateur 
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../../authentification/logout.php"
+                                    class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>
@@ -122,14 +131,16 @@ $admin = Admin::getById(1); // Récupérer les informations de l'administrateur 
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">Profil Administrateur</h1>
                     <div class="flex space-x-3">
-                        <a href="../../app/action/admins/add.php"
-                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center">
-                            <i class="fas fa-user-plus mr-2"></i> Ajouter Admin
-                            </aa>
-                            <a href="../../app/action/admins/edit.php?id=<?php echo $admin['id_admin']; ?>"
+                        <?php if ($admin['id_role_fk'] === 1): ?>
+                            <a href="../../app/action/admins/add.php"
                                 class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center">
-                                <i class="fas fa-edit mr-2"></i> Modifier Profil
+                                <i class="fas fa-user-plus mr-2"></i> Ajouter Admin
                             </a>
+                        <?php endif; ?>
+                        <a href="../../app/action/admins/edit.php?id=<?php echo $admin['id_admin']; ?>"
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-edit mr-2"></i> Modifier Profil
+                        </a>
                     </div>
                 </div>
 
@@ -159,7 +170,7 @@ $admin = Admin::getById(1); // Récupérer les informations de l'administrateur 
                                     <?php echo $admin['username']; ?></p>
                                 <p class="text-gray-400"><strong>Email:</strong>
                                     <?php echo $admin['email']; ?></p>
-                                <p class="text-gray-400"><strong>Rôle:</strong> <?php echo $admin['role_nom']; ?></p>
+                                <p class="text-gray-400"><strong>Rôle:</strong><?php echo $admin['role_nom']; ?></p>
                             </div>
                         </div>
                     <?php else: ?>

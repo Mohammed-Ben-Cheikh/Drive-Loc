@@ -5,7 +5,7 @@ require_once __DIR__ . '/statistiques.php';
 class StatistiquesManager 
 {
     private static $queries = [
-        'total_clients' => "SELECT COUNT(*) FROM users WHERE id_role_fk = 2",
+        'total_clients' => "SELECT COUNT(*) FROM users WHERE id_role_fk = 3",
         'total_categories' => "SELECT COUNT(*) FROM categories",
         'total_vehicules' => "SELECT COUNT(*) FROM vehicules",
         'total_reservations' => "SELECT COUNT(*) FROM reservations",
@@ -84,5 +84,36 @@ class StatistiquesManager
             $latestStats = self::getLatestStats();
         }
         return $latestStats;
+    }
+
+    public static function getVehicleStats()
+    {
+        $database = new Database();
+        $db = $database->connect();
+
+        $stats = [];
+
+        // Total vehicles
+        $query = "SELECT COUNT(*) as total_vehicules FROM vehicules";
+        $stmt = $db->query($query);
+        $stats['total_vehicules'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_vehicules'];
+
+        // Available vehicles
+        $query = "SELECT COUNT(*) as vehicules_disponibles FROM vehicules WHERE disponibilite = 'Disponible'";
+        $stmt = $db->query($query);
+        $stats['vehicules_disponibles'] = $stmt->fetch(PDO::FETCH_ASSOC)['vehicules_disponibles'];
+
+        // Unavailable vehicles
+        $query = "SELECT COUNT(*) as vehicules_indisponibles FROM vehicules WHERE disponibilite = 'Indisponible'";
+        $stmt = $db->query($query);
+        $stats['vehicules_indisponibles'] = $stmt->fetch(PDO::FETCH_ASSOC)['vehicules_indisponibles'];
+
+        // Reserved vehicles
+        $query = "SELECT COUNT(*) as vehicules_reserves FROM vehicules WHERE disponibilite = 'Réservé'";
+        $stmt = $db->query($query);
+        $stats['vehicules_reserves'] = $stmt->fetch(PDO::FETCH_ASSOC)['vehicules_reserves'];
+
+        $database->disconnect();
+        return $stats;
     }
 }
