@@ -20,7 +20,7 @@ $user = User::getById($_SESSION['user_id']);
     <link rel="stylesheet" href="../../src/output.css">
 </head>
 
-<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col p-4">
     <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -52,31 +52,31 @@ $user = User::getById($_SESSION['user_id']);
             </div>
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
                 <ul
-                    class="flex flex-col justify-center font-medium p-4 rounded-lg w-full md:w-[38rem] bg-[#e0e0e0] [box-shadow:inset_15px_15px_33px_#bebebe,_inset_-15px_-15px_33px_#ffffff] md:p-0 mt-4 border border-gray-100 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                    class="flex flex-col justify-center items-center font-medium p-4 rounded-lg w-full md:w-[38rem] md:h-10 md:p-0 mt-4 border border-gray-100 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 bg-white">
                     <li>
                         <a href="../index.php"
                             class="block py-2 px-3 text-white bg-blue-600 rounded md:bg-transparent md:text-blue-600 md:p-0">Home</a>
                     </li>
                     <li>
                         <a href="vehicules.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Vehicules</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Vehicules</a>
                     </li>
                     <li>
                         <a href="categories.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Categories</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Categories</a>
                     </li>
                     <li>
                         <a href="reservation.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Reservation</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Reservation</a>
                     </li>
                     <li>
                         <a href="users.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Espace
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Espace
                             client</a>
                     </li>
                     <li>
                         <a href="contact.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Contact</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Contact</a>
                     </li>
                 </ul>
             </div>
@@ -85,23 +85,26 @@ $user = User::getById($_SESSION['user_id']);
     <main>
         <!-- Section Hero -->
         <section
-            class="relative overflow-hidden rounded-[2rem] bg-white/50 backdrop-blur-sm border-4 border-white shadow-2xl p-8 mt-8">
-            <div class="absolute inset-0 bg-pattern opacity-5"></div>
-            <div class="container mx-auto px-4 py-8 relative">
-                <h1 class="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-4">Réservez Votre Chef</h1>
-                <p class="text-xl text-gray-600 text-center max-w-2xl mx-auto">
-                    Une expérience culinaire unique à domicile.
-                </p>
-            </div>
-        </section>
+    class="relative overflow-hidden rounded-[2rem] bg-black/35 backdrop-blur-sm border-4 border-white shadow-2xl p-8 my-8">
+    <div class="absolute inset-0 mix-blend-overlay p-2">
+        <img src="../img/herocar.jpg" alt="Espace Client" class="w-full h-full rounded-3xl object-cover">
+    </div>
+    <div class="relative z-10 flex flex-col justify-center items-center text-white p-8">
+        <h1 class="text-5xl font-bold mb-4 text-white">
+            Espace Client
+        </h1>
+        <p class="text-xl text-gray-100 text-center">
+            Accédez à vos informations personnelles et gérez vos activités.
+        </p>
+    </div>
+</section>
+
 
         <!-- Section Réservation -->
         <section
             class="relative overflow-hidden rounded-[2rem] bg-white/50 backdrop-blur-sm border-4 border-white shadow-2xl p-8 mt-8">
             <!-- Settings Content -->
-            <div
-                class="w-full h-full bg-gradient-to-b from-blue-600 to-black text-white p-6 rounded-xl overflow-y-auto border-8 border-black">
-                <div class="max-w-4xl mx-auto space-y-8">
+            <div class="space-y-8">
                     <!-- user Profile Card -->
                     <div class="bg-dark-light rounded-xl shadow-xl p-6">
                         <?php if ($user): ?>
@@ -277,7 +280,6 @@ $user = User::getById($_SESSION['user_id']);
 
                     </div>
                 </div>
-            </div>
         </section>
 
         <footer

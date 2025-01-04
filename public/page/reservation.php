@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
+
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col p-4">
     <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -74,64 +76,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
                 <ul
-                    class="flex flex-col justify-center font-medium p-4 rounded-lg w-full md:w-[38rem] bg-[#e0e0e0] [box-shadow:inset_15px_15px_33px_#bebebe,_inset_-15px_-15px_33px_#ffffff] md:p-0 mt-4 border border-gray-100 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                    class="flex flex-col justify-center items-center font-medium p-4 rounded-lg w-full md:w-[38rem] md:h-10 md:p-0 mt-4 border border-gray-100 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 bg-white">
                     <li>
                         <a href="../index.php"
                             class="block py-2 px-3 text-white bg-blue-600 rounded md:bg-transparent md:text-blue-600 md:p-0">Home</a>
                     </li>
                     <li>
                         <a href="vehicules.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Vehicules</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Vehicules</a>
                     </li>
                     <li>
                         <a href="categories.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Categories</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Categories</a>
                     </li>
                     <li>
                         <a href="reservation.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Reservation</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Reservation</a>
                     </li>
                     <li>
                         <a href="users.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Espace client</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Espace
+                            client</a>
                     </li>
                     <li>
                         <a href="contact.php"
-                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 dark:text-white">Contact</a>
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-600 md:p-0 ">Contact</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <main class="max-w-7xl mx-auto p-4">
-        <div class="mb-8">
-            <h1 class="text-4xl font-bold text-white mb-4">Mes Réservations</h1>
-            <p class="text-gray-300">Gérez vos réservations de véhicules</p>
-        </div>
+    <main>
+        <section
+            class="relative overflow-hidden rounded-[2rem] bg-black/35 backdrop-blur-sm border-4 border-white shadow-2xl p-8 my-8">
+            <div class="absolute inset-0  mix-blend-overlay  p-2">
+                <img src="../img/herocar.jpg" alt="" class="w-full h-full rounded-3xl object-cover">
+            </div>
+            <div class="relative z-10 flex flex-col justify-center items-center text-white p-8">
+                <h1 class="text-5xl font-bold mb-4 text-white">
+                    Mes Réservations
+                </h1>
+                <p class="text-xl text-gray-100 text-center">
+                    Gérez vos réservations de véhicules
+                </p>
+            </div>
+        </section>
+
 
         <?php if (empty($reservations)): ?>
             <div class="bg-white/10 backdrop-blur-lg rounded-xl p-8 text-center">
                 <i class="fas fa-calendar-xmark text-4xl text-gray-400 mb-4"></i>
                 <h2 class="text-xl font-semibold text-white mb-2">Aucune réservation</h2>
                 <p class="text-gray-400 mb-4">Vous n'avez pas encore de réservation active.</p>
-                <a href="vehicules.php" 
-                   class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="vehicules.php"
+                    class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
                     Découvrir nos véhicules
                 </a>
             </div>
         <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php foreach ($reservations as $reservation): 
+                <?php foreach ($reservations as $reservation):
                     $vehicule = Vehicule::getById($reservation['id_vehicule_fk']);
-                ?>
+                    ?>
                     <div class="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10">
                         <!-- Vehicle Image -->
                         <div class="relative h-48">
-                            <img src="<?php echo $vehicule['image_url']; ?>" 
-                                 alt="<?php echo $vehicule['marque'] . ' ' . $vehicule['modele']; ?>"
-                                 class="w-full h-full object-cover">
+                            <img src="<?php echo $vehicule['image_url']; ?>"
+                                alt="<?php echo $vehicule['marque'] . ' ' . $vehicule['modele']; ?>"
+                                class="w-full h-full object-cover">
                             <div class="absolute top-4 right-4">
-                                <span class="px-4 py-2 rounded-full text-sm font-semibold <?php echo getStatusClass($reservation['statut']); ?>">
+                                <span
+                                    class="px-4 py-2 rounded-full text-sm font-semibold <?php echo getStatusClass($reservation['statut']); ?>">
                                     <?php echo getStatusLabel($reservation['statut']); ?>
                                 </span>
                             </div>
@@ -142,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h3 class="text-xl font-bold text-white mb-2">
                                 <?php echo $vehicule['marque'] . ' ' . $vehicule['modele']; ?>
                             </h3>
-                            
+
                             <div class="space-y-3 text-gray-300">
                                 <div class="flex items-center">
                                     <i class="fas fa-calendar-alt w-6"></i>
@@ -176,12 +191,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php
                                     $statuses = ['en attente', 'approuvée', 'terminée'];
                                     $currentIndex = array_search($reservation['statut'], $statuses);
-                                    
+
                                     foreach ($statuses as $index => $status):
                                         $isActive = $index <= $currentIndex;
-                                    ?>
+                                        ?>
                                         <div class="flex flex-col items-center">
-                                            <div class="w-6 h-6 rounded-full <?php echo $isActive ? 'bg-blue-500' : 'bg-gray-600'; ?> flex items-center justify-center">
+                                            <div
+                                                class="w-6 h-6 rounded-full <?php echo $isActive ? 'bg-blue-500' : 'bg-gray-600'; ?> flex items-center justify-center">
                                                 <i class="fas fa-check text-white text-xs"></i>
                                             </div>
                                             <span class="text-xs text-gray-400 mt-1"><?php echo ucfirst($status); ?></span>
@@ -189,25 +205,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php endforeach; ?>
                                 </div>
                                 <div class="absolute top-3 left-0 right-0 h-[2px] bg-gray-600 -z-10">
-                                    <div class="h-full bg-blue-500" style="width: <?php echo ($currentIndex / 2) * 100; ?>%"></div>
+                                    <div class="h-full bg-blue-500" style="width: <?php echo ($currentIndex / 2) * 100; ?>%">
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Actions -->
                             <?php if ($reservation['statut'] === 'en attente' || $reservation['statut'] === 'approuvée'): ?>
                                 <div class="mt-6 flex gap-2">
-                                    <form method="POST" class="w-full" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
-                                        <input type="hidden" name="id_reservation" value="<?php echo $reservation['id_reservation']; ?>">
+                                    <form method="POST" class="w-full"
+                                        onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                                        <input type="hidden" name="id_reservation"
+                                            value="<?php echo $reservation['id_reservation']; ?>">
                                         <input type="hidden" name="action" value="cancel">
-                                        <button type="submit" 
+                                        <button type="submit"
                                             class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
                                             <i class="fas fa-times"></i>
                                             Annuler
                                         </button>
                                     </form>
                                     <?php if ($reservation['statut'] === 'approuvée'): ?>
-                                        <a href="facture.php?id=<?php echo $reservation['id_reservation']; ?>" 
-                                           class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                                        <a href="facture.php?id=<?php echo $reservation['id_reservation']; ?>"
+                                            class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
                                             <i class="fas fa-file-invoice"></i>
                                             Facture
                                         </a>
@@ -339,4 +358,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
+
 </html>

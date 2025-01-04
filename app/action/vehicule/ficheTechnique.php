@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../../../src/output.css">
 </head>
 
-<body class="max-w-screen-xl flex bg-gradient-to-br from-gray-50 to-blue-50 flex-col mx-auto p-4">
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col p-4 space-y-8">
     <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -56,10 +56,6 @@
                             <img src="<?php echo htmlspecialchars($vehicule['image_url']); ?>"
                                 alt="<?php echo htmlspecialchars($vehicule['nom']); ?>"
                                 class="rounded-[2rem] shadow-2xl w-full h-[400px] sm:h-full  object-cover">
-                            <div class="bg-white/80 rounded-xl p-6">
-                                <h3 class="text-xl font-semibold text-gray-800 mb-4">Description</h3>
-                                <p class="text-gray-600"><?php echo nl2br(htmlspecialchars($vehicule['description'])); ?></p>
-                            </div>
                             <!-- Availability Badge -->
                             <div class="absolute top-4 right-4">
                                 <span class="px-4 py-2 rounded-full text-white font-semibold <?php
@@ -143,8 +139,10 @@
                             </div>
 
                             <!-- Description -->
-
-
+                            <div class="bg-white/80 rounded-xl p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-4">Description</h3>
+                                <p class="text-gray-600"><?php echo nl2br(htmlspecialchars($vehicule['description'])); ?></p>
+                            </div>
                             <!-- Action Buttons -->
                             <div class="flex gap-4">
                                 <?php if ($vehicule['disponibilite'] === 'Disponible'): ?>
