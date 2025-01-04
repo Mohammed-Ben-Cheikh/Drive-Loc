@@ -52,14 +52,14 @@
                     ?>
                     <div class="grid md:grid-cols-2 gap-8">
                         <!-- Image Section -->
-                        <div class="relative group">
-                            <div
-                                class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-400 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
-                            </div>
+                        <div class="relative group space-x-4 space-y-4">
                             <img src="<?php echo htmlspecialchars($vehicule['image_url']); ?>"
                                 alt="<?php echo htmlspecialchars($vehicule['nom']); ?>"
-                                class="rounded-[2rem] shadow-2xl w-full h-[400px] object-cover">
-
+                                class="rounded-[2rem] shadow-2xl w-full h-[400px] sm:h-full  object-cover">
+                            <div class="bg-white/80 rounded-xl p-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-4">Description</h3>
+                                <p class="text-gray-600"><?php echo nl2br(htmlspecialchars($vehicule['description'])); ?></p>
+                            </div>
                             <!-- Availability Badge -->
                             <div class="absolute top-4 right-4">
                                 <span class="px-4 py-2 rounded-full text-white font-semibold <?php
@@ -143,10 +143,7 @@
                             </div>
 
                             <!-- Description -->
-                            <div class="bg-white/80 rounded-xl p-6">
-                                <h3 class="text-xl font-semibold text-gray-800 mb-4">Description</h3>
-                                <p class="text-gray-600"><?php echo nl2br(htmlspecialchars($vehicule['description'])); ?></p>
-                            </div>
+
 
                             <!-- Action Buttons -->
                             <div class="flex gap-4">

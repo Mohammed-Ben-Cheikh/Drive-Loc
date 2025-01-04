@@ -86,7 +86,7 @@ CREATE TABLE `reservations` (
     `id_user_fk` INT(11) NOT NULL,                                 
     `id_vehicule_fk` INT(11) NOT NULL,                             
     `date_reservation` DATETIME NOT NULL,                                                   
-    `statut` ENUM('en attente', 'approuvée', 'refusée', 'terminée') DEFAULT 'en attente',
+    `statut`  ENUM('en attente', 'approuvée', 'refusée', 'terminée', 'annulée') DEFAULT 'en attente',
     `lieux` VARCHAR(255) NOT NULL,   
     `commentaire` TEXT,                                            
     `date_creation` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,           
@@ -102,7 +102,7 @@ CREATE TABLE `reviews` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,                
     `id_user_fk` INT NOT NULL,                              
     `id_vehicule_fk` INT NOT NULL,
-                               
+    `statut` ENUM('en attente', 'approuvée', 'refusée') DEFAULT 'en attente',                   
     `rating` INT CHECK (rating >= 1 AND rating <= 5),     
     `comment` TEXT,                                      
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
@@ -148,10 +148,44 @@ INSERT INTO `roles` (`role`) VALUES
 ('Admin'),
 ('User');
 
+DELIMITER //
+CREATE PROCEDURE AjouterReservation(
+    IN p_id_user INT,
+    IN p_id_vehicule INT,
+    IN p_date_reservation DATETIME,
+    IN p_lieux VARCHAR(255),
+    IN p_commentaire TEXT,
+    IN p_date_limite DATETIME
+)
+BEGIN
+    DECLARE vehicule_disponible ENUM('Disponible', 'Indisponible', 'Réservé');
 
-SELECT * FROM `roles`;
+    -- Vérifier la disponibilité du véhicule
+    SELECT disponibilite INTO vehicule_disponible
+    FROM vehicules
+    WHERE id_vehicule = p_id_vehicule;
 
+    IF vehicule_disponible = 'Disponible' THEN
+        -- Ajouter la réservation
+        INSERT INTO reservations (
+            id_user_fk, id_vehicule_fk, date_reservation, 
+            lieux, commentaire, date_limite
+        ) VALUES (
+            p_id_user, p_id_vehicule, p_date_reservation, 
+            p_lieux, p_commentaire, p_date_limite
+        );
 
+        -- Mettre à jour le statut du véhicule
+        UPDATE vehicules
+        SET disponibilite = 'Réservé'
+        WHERE id_vehicule = p_id_vehicule;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Le véhicule sélectionné n\'est pas disponible.';
+    END IF;
+END //
+
+DELIMITER ;
 
 
 -- Insert data into `categories`
@@ -165,6 +199,9 @@ INSERT INTO `categories` (`nom`, `description`, `image_url`) VALUES
 INSERT INTO `vehicules` (`nom`, `prix_a_loue`, `description`, `id_categorie_fk`, `matriculation`, `marque`, `modele`, `annee`, `climatisation`, `type_vitesse`, `nb_vitesses`, `toit_panoramique`, `kilometrage`, `carburant`, `nombre_de_places`, `nombre_de_portes`, `disponibilite`, `nombre_image`, `image_url`, `reservations_par_vehicule`) VALUES
 ('Toyota RAV4', 80.00, 'A reliable SUV with great fuel efficiency.', 1, 'ABC-1234', 'Toyota', 'RAV4', 2020, 'oui', 'Automatique', '6', 'Fixe', 25000.00, 'Essence', 5, 5, 'Disponible', 3, 'toyota_rav4.jpg', 15),
 ('Honda Civic', 50.00, 'A compact car perfect for city driving.', 2, 'DEF-5678', 'Honda', 'Civic', 2018, 'oui', 'Manuelle', '5', 'Non', 40000.00, 'Essence', 5, 4, 'Disponible', 2, 'honda_civic.jpg', 10),
-('BMW 7 Series', 200.00, 'Luxury sedan with top-notch features.', 3, 'GHI-9101', 'BMW', '7 Series', 2022, 'oui', 'Automatique', '8', 'Ouvrant', 15000.00, 'Diesel', 5, 4, 'Réservé', 5, 'bmw_7series.jpg', 5),
+('BMW 7 Series', 200.00, 'Luxury sedan with top-notch features.', 3, 'GHI-9101', 'BMW', '7 Series', 2022, 'oui', 'Automatique', '8', 'Ouvrant', 15000.00, 'Diesel', 5, 4, 'Disponible', 5, 'bmw_7series.jpg', 5),
 ('Tesla Model 3', 120.00, 'High-performance electric car.', 4, 'JKL-2345', 'Tesla', 'Model 3', 2021, 'oui', 'Automatique', '1', 'Fixe', 12000.00, 'Électrique', 5, 4, 'Disponible', 4, 'tesla_model3.jpg', 8);
+
+
+
 

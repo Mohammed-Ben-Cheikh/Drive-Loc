@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORLDY - Inscription</title>
+    <title>Drive-Loc - Inscription</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="style.css">
     <style>
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Zone gauche avec contenu -->
         <div class="hidden md:flex md:w-1/2 bg-gradient-to-r from-black/80 to-transparent p-8 flex-col justify-center items-start">
             <div class="max-w-lg fade-in-left">
-                <h1 class="text-5xl font-bold text-white mb-6">Bienvenue chez </h1>
+                <h1 class="text-5xl font-bold text-white mb-6">Bienvenue chez Drive-Loc</h1>
                 <p class="text-xl text-white/90 mb-4">Découvrez notre sélection exclusive de véhicules de luxe pour une expérience de conduite incomparable.</p>
                 <div class="space-y-4">
                     <div class="flex items-center space-x-3">

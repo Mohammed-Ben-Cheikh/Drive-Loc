@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORLDY - Connexion</title>
+    <title>Drive-Loc - Connexion</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="style.css">
     <style>
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Zone gauche avec contenu -->
         <div class="hidden md:flex md:w-1/2 bg-gradient-to-r from-black/80 to-transparent p-8 flex-col justify-center items-start">
             <div class="max-w-lg fade-in-left">
-                <h1 class="text-5xl font-bold text-white mb-6">Connectez-vous à WORLDY</h1>
+                <h1 class="text-5xl font-bold text-white mb-6">Connectez-vous à Drive-Loc</h1>
                 <p class="text-xl text-white/90 mb-8">Accédez à votre espace personnel pour gérer vos réservations et profiter de nos services premium.</p>
                 <div class="space-y-4">
                     <div class="flex items-center space-x-3">

@@ -7,7 +7,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
 }
 
 require_once '../../app/controller/admins.php';
-$admin = Admin::getById($_SESSION['admin_id']); // Récupérer les informations de l'administrateur (id = 1)
+$admin = Admin::getById($_SESSION['admin_id']);
 ?>
 
 <!DOCTYPE html>
@@ -137,7 +137,7 @@ $admin = Admin::getById($_SESSION['admin_id']); // Récupérer les informations 
                                 <i class="fas fa-user-plus mr-2"></i> Ajouter Admin
                             </a>
                         <?php endif; ?>
-                        <a href="../../app/action/admins/edit.php?id=<?php echo $admin['id_admin']; ?>"
+                        <a href="../../app/action/admins/edit.php"
                             class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center">
                             <i class="fas fa-edit mr-2"></i> Modifier Profil
                         </a>

@@ -2,12 +2,76 @@
 session_start();
 if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
     header("Location: ../../public");
+    exit();
 } else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
     header("Location: ../../index.php");
-} 
+    exit();
+}
+
+require_once __DIR__ . '/../../app/controller/reservations.php';
+require_once __DIR__ . '/../../app/controller/users.php';
+require_once __DIR__ . '/../../app/controller/vehicules.php';
+require_once '../../app/controller/statistiquesManager.php';
+$stats = StatistiquesManager::getDashboardStats();
+// Gestion des actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $id_reservation = $_POST['id_reservation'] ?? '';
+
+    switch ($action) {
+        case 'approve':
+            // Mettre à jour les statistiques après l'inscription
+            StatistiquesManager::calculerEtMettreAJour();
+            Reservation::updateStatut($id_reservation, 'approuvée');
+            break;
+        case 'reject':
+            // Mettre à jour les statistiques après l'inscription
+            StatistiquesManager::calculerEtMettreAJour();
+            Reservation::updateStatut($id_reservation, 'refusée');
+            break;
+        case 'complete':
+            // Mettre à jour les statistiques après l'inscription
+            StatistiquesManager::calculerEtMettreAJour();
+            Reservation::updateStatut($id_reservation, 'terminée');
+            break;
+        case 'cancel':
+            StatistiquesManager::calculerEtMettreAJour();
+            Reservation::updateStatut($id_reservation, 'annuler');
+            break;
+    }
+}
+
+// Récupération des réservations avec filtres
+$status_filter = $_GET['status'] ?? '';
+$date_filter = $_GET['date'] ?? '';
+$search = $_GET['search'] ?? '';
+
+// Filtres
+$reservations = Reservation::getAll();
+
+if ($status_filter) {
+    $reservations = array_filter($reservations, function ($r) use ($status_filter) {
+        return $r['statut'] === $status_filter;
+    });
+}
+
+if ($date_filter) {
+    $reservations = array_filter($reservations, function ($r) use ($date_filter) {
+        return date('Y-m-d', strtotime($r['date_reservation'])) === $date_filter;
+    });
+}
+
+if ($search) {
+    $reservations = array_filter($reservations, function ($r) use ($search) {
+        return stripos($r['username'], $search) !== false ||
+            stripos($r['vehicule_nom'], $search) !== false ||
+            stripos($r['lieux'], $search) !== false;
+    });
+}
+
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -17,15 +81,9 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
     <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Add DataTables CSS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.tailwind.min.css">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.tailwind.min.css">
-    <!-- Add Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="bg-dark text-gray-100">
+<body class="bg-gray-900">
     <div class="flex flex-col md:flex-row min-h-screen">
         <!-- Sidebar - avec toggle pour mobile -->
         <nav id="sidebar"
@@ -119,7 +177,8 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="../../authentification/logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../../authentification/logout.php"
+                                    class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>
@@ -130,190 +189,294 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
             <!-- Dashboard Content -->
             <div class="p-4 md:p-6">
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-4">
-                        <div class="flex justify-between">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                    <div
+                        class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Réservations totales</p>
-                                <h3 class="text-2xl font-bold">1,234</h3>
+                                <p class="text-white/60 text-sm">Total Réservations</p>
+                                <h3 class="text-3xl font-bold text-white"><?php echo $stats['total_reservations'] ?></h3>
                             </div>
-                            <div class="text-white/80">
-                                <i class="fas fa-calendar-check text-3xl"></i>
+                            <div class="bg-white/10 p-3 rounded-lg">
+                                <i class="fas fa-calendar-check text-2xl text-white"></i>
                             </div>
-                        </div>
-                        <div class="mt-4 text-white/60 text-sm">
-                            <span class="text-green-400"><i class="fas fa-arrow-up"></i> +15%</span> vs mois dernier
                         </div>
                     </div>
-                    <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-4">
-                        <div class="flex justify-between">
+                    <div
+                        class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Réservations totales</p>
-                                <h3 class="text-2xl font-bold">1,234</h3>
+                                <p class="text-white/60 text-sm">En Attente</p>
+                                <h3 class="text-3xl font-bold text-white"><?php echo $stats['reservations_en_attente']; ?></h3>
                             </div>
-                            <div class="text-white/80">
-                                <i class="fas fa-calendar-check text-3xl"></i>
+                            <div class="bg-white/10 p-3 rounded-lg">
+                                <i class="fas fa-clock text-2xl text-white"></i>
                             </div>
-                        </div>
-                        <div class="mt-4 text-white/60 text-sm">
-                            <span class="text-green-400"><i class="fas fa-arrow-up"></i> +15%</span> vs mois dernier
                         </div>
                     </div>
-                    <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-4">
-                        <div class="flex justify-between">
+                    <div
+                        class="bg-gradient-to-br from-green-500 to-teal-500 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Réservations totales</p>
-                                <h3 class="text-2xl font-bold">1,234</h3>
+                                <p class="text-white/60 text-sm">Approuvées</p>
+                                <h3 class="text-3xl font-bold text-white"><?php echo $stats['reservations_approuvees']; ?></h3>
                             </div>
-                            <div class="text-white/80">
-                                <i class="fas fa-calendar-check text-3xl"></i>
+                            <div class="bg-white/10 p-3 rounded-lg">
+                                <i class="fas fa-check text-2xl text-white"></i>
                             </div>
-                        </div>
-                        <div class="mt-4 text-white/60 text-sm">
-                            <span class="text-green-400"><i class="fas fa-arrow-up"></i> +15%</span> vs mois dernier
                         </div>
                     </div>
-                    <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-4">
-                        <div class="flex justify-between">
+                    <div
+                        class="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-white/60">Réservations totales</p>
-                                <h3 class="text-2xl font-bold">1,234</h3>
+                                <p class="text-white/60 text-sm">Refusées</p>
+                                <h3 class="text-3xl font-bold text-white"><?php echo $stats['reservations_refusees'] ?></h3>
                             </div>
-                            <div class="text-white/80">
-                                <i class="fas fa-calendar-check text-3xl"></i>
+                            <div class="bg-white/10 p-3 rounded-lg">
+                                <i class="fas fa-flag-checkered text-2xl text-white"></i>
                             </div>
-                        </div>
-                        <div class="mt-4 text-white/60 text-sm">
-                            <span class="text-green-400"><i class="fas fa-arrow-up"></i> +15%</span> vs mois dernier
                         </div>
                     </div>
-                    <!-- Similar cards for other stats -->
+                    <div
+                        class="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-white/60 text-sm">Terminées</p>
+                                <h3 class="text-3xl font-bold text-white"><?php echo $stats['reservations_terminee']; ?></h3>
+                            </div>
+                            <div class="bg-white/10 p-3 rounded-lg">
+                                <i class="fas fa-flag-checkered text-2xl text-white"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Filters Section -->
-                <div class="bg-dark-light rounded-xl p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-6">
+                    <form class="grid grid-cols-1 md:grid-cols-4 gap-4" method="GET">
                         <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Statut</label>
-                            <select class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-600">
+                            <label class="block text-sm font-medium text-white mb-2">Statut</label>
+                            <select name="status"
+                                class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 border border-gray-700 focus:ring-2 focus:ring-blue-500">
                                 <option value="">Tous les statuts</option>
-                                <option value="en_attente">En attente</option>
-                                <option value="confirme">Confirmé</option>
-                                <option value="en_cours">En cours</option>
-                                <option value="termine">Terminé</option>
-                                <option value="annule">Annulé</option>
+                                <option value="en attente" <?php echo $status_filter === 'en attente' ? 'selected' : ''; ?>>En attente</option>
+                                <option value="approuvée" <?php echo $status_filter === 'approuvée' ? 'selected' : ''; ?>>
+                                    Approuvée</option>
+                                <option value="refusée" <?php echo $status_filter === 'refusée' ? 'selected' : ''; ?>>
+                                    Refusée</option>
+                                <option value="terminée" <?php echo $status_filter === 'terminée' ? 'selected' : ''; ?>>
+                                    Terminée</option>
                             </select>
                         </div>
-                        <!-- Add more filters -->
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Date</label>
+                            <input type="date" name="date" value="<?php echo $date_filter; ?>"
+                                class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 border border-gray-700 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Recherche</label>
+                            <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>"
+                                placeholder="Client, véhicule ou lieu..."
+                                class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 border border-gray-700 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105">
+                                <i class="fas fa-filter mr-2"></i>Filtrer
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Reservations Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <?php for ($i = 0; $i < 9; $i++): ?>
-                    <div class="bg-dark-light rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                        <div class="relative">
-                            <!-- Add ribbon for urgent/special status -->
-                            <?php if ($i % 3 === 0): ?>
-                            <div class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm">
-                                Urgent
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <?php foreach ($reservations as $reservation): ?>
+                        <div
+                            class="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-700/50">
+                            <div class="relative">
+                                <img src="<?php echo getVehiculeImage($reservation['id_vehicule_fk']); ?>"
+                                    class="w-full h-48 object-cover" alt="Véhicule">
+                                <div class="absolute top-4 right-4">
+                                    <span class="px-4 py-2 rounded-full text-sm font-semibold 
+                                        <?php echo getStatusClass($reservation['statut']); ?>">
+                                        <?php echo ucfirst($reservation['statut']); ?>
+                                    </span>
+                                </div>
                             </div>
-                            <?php endif; ?>
-                            
-                            <!-- Vehicle Image -->
-                            <img src="../img/herocar.jpg" class="w-full h-48 object-cover" alt="Vehicle">
-                            
-                            <!-- Status Badge -->
-                            <div class="absolute top-4 right-4">
-                                <?php
-                                $status_classes = [
-                                    'en_attente' => 'bg-yellow-500',
-                                    'approuve' => 'bg-green-500',
-                                    'refuse' => 'bg-red-500',
-                                    'termine' => 'bg-blue-500'
-                                ];
-                                $status = array_rand($status_classes);
-                                ?>
-                                <span class="<?php echo $status_classes[$status]; ?> text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                    <?php echo ucfirst($status); ?>
-                                </span>
+
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-white">Réservation
+                                            #<?php echo $reservation['id_reservation']; ?></h3>
+                                        <p class="text-gray-400">
+                                            <?php echo getVehiculeName($reservation['id_vehicule_fk']); ?>
+                                        </p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <?php if ($reservation['statut'] === 'en attente'): ?>
+                                            <form method="POST" class="flex-1">
+                                                <input type="hidden" name="id_reservation"
+                                                    value="<?php echo $reservation['id_reservation']; ?>">
+                                                <input type="hidden" name="action" value="approve">
+                                                <button type="submit" 
+                                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg 
+                                                           hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300
+                                                           flex items-center justify-center gap-2">
+                                                    <i class="fas fa-check"></i>
+                                                    <span>Approuver</span>
+                                                </button>
+                                            </form>
+                                            <form method="POST" class="flex-1">
+                                                <input type="hidden" name="id_reservation"
+                                                    value="<?php echo $reservation['id_reservation']; ?>">
+                                                <input type="hidden" name="action" value="reject">
+                                                <button type="submit" 
+                                                    class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg 
+                                                           hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300
+                                                           flex items-center justify-center gap-2">
+                                                    <i class="fas fa-times"></i>
+                                                    <span>Refuser</span>
+                                                </button>
+                                            </form>
+                                            <form method="POST" class="flex-1">
+                                                <input type="hidden" name="id_reservation" value="<?php echo $reservation['id_reservation']; ?>">
+                                                <input type="hidden" name="action" value="cancel">
+                                                <button type="submit" 
+                                                    class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg 
+                                                           hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300
+                                                           flex items-center justify-center gap-2">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span>Annuler la réservation</span>
+                                                </button>
+                                            </form>
+                                        <?php elseif ($reservation['statut'] === 'approuvée'): ?>
+                                            <form method="POST" class="w-full">
+                                                <input type="hidden" name="id_reservation" value="<?php echo $reservation['id_reservation']; ?>">
+                                                <input type="hidden" name="action" value="complete">
+                                                <button type="submit" 
+                                                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg 
+                                                           hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300
+                                                           flex items-center justify-center gap-2 group">
+                                                    <i class="fas fa-flag-checkered group-hover:animate-bounce"></i>
+                                                    <span>Terminer la réservation</span>
+                                                </button>
+                                            </form>
+                                            <form method="POST" class="flex-1">
+                                                <input type="hidden" name="id_reservation" value="<?php echo $reservation['id_reservation']; ?>">
+                                                <input type="hidden" name="action" value="cancel">
+                                                <button type="submit" 
+                                                    class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg 
+                                                           hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300
+                                                           flex items-center justify-center gap-2">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span>Annuler la réservation</span>
+                                                </button>
+                                            </form>
+                                        <?php elseif ($reservation['statut'] === 'terminée'): ?>
+                                            <div class="w-full bg-gray-600/50 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2">
+                                                <i class="fas fa-check-circle text-green-400"></i>
+                                                <span class="text-xs">Réservation terminée</span>
+                                            </div>
+                                        <?php elseif ($reservation['statut'] === 'refusée'): ?>
+                                            <div class="w-full bg-gray-600/50 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2">
+                                                <i class="fas fa-ban text-red-400"></i>
+                                                <span class="text-xs">Réservation refusée</span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="flex items-center text-gray-400">
+                                        <i class="fas fa-user-circle w-5"></i>
+                                        <span class="ml-2"><?php echo $reservation['username']; ?></span>
+                                    </div>
+                                    <div class="flex items-center text-gray-400">
+                                        <i class="fas fa-map-marker-alt w-5"></i>
+                                        <span class="ml-2"><?php echo $reservation['lieux']; ?></span>
+                                    </div>
+                                    <div class="flex items-center text-gray-400">
+                                        <i class="fas fa-calendar w-5"></i>
+                                        <span
+                                            class="ml-2"><?php echo formatDate($reservation['date_reservation']); ?></span>
+                                    </div>
+                                </div>
+
+                                <?php if ($reservation['commentaire']): ?>
+                                    <div class="mt-4 p-3 bg-gray-800/50 rounded-lg">
+                                        <p class="text-gray-400 text-sm"><?php echo $reservation['commentaire']; ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-700 p-4">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full <?php echo $reservation['statut'] !== 'refusée' ? 'bg-green-500' : 'bg-gray-500'; ?> flex items-center justify-center">
+                                            <i class="fas fa-clock text-white"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-400 mt-1">En attente</span>
+                                    </div>
+                                    <div class="flex-1 h-1 mx-2 bg-gray-700">
+                                        <div class="h-full <?php echo $reservation['statut'] === 'approuvée' || $reservation['statut'] === 'terminée' ? 'bg-blue-500' : 'bg-gray-700'; ?>"></div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full <?php echo $reservation['statut'] === 'approuvée' || $reservation['statut'] === 'terminée' ? 'bg-blue-500' : 'bg-gray-500'; ?> flex items-center justify-center">
+                                            <i class="fas fa-check text-white"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-400 mt-1">Approuvée</span>
+                                    </div>
+                                    <div class="flex-1 h-1 mx-2 bg-gray-700">
+                                        <div class="h-full <?php echo $reservation['statut'] === 'terminée' ? 'bg-green-500' : 'bg-gray-700'; ?>"></div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full <?php echo $reservation['statut'] === 'terminée' ? 'bg-green-500' : 'bg-gray-500'; ?> flex items-center justify-center">
+                                            <i class="fas fa-flag-checkered text-white"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-400 mt-1">Terminée</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Card Content -->
-                        <div class="p-6">
-                            <!-- Header -->
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h3 class="text-xl font-bold mb-2">Réservation #<?php echo $i + 1000; ?></h3>
-                                    <p class="text-gray-400">BMW M3 Competition</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-lg font-bold">450€</p>
-                                    <p class="text-sm text-gray-400">3 jours</p>
-                                </div>
-                            </div>
-
-                            <!-- Customer Info -->
-                            <div class="flex items-center mb-4">
-                                <img src="https://ui-avatars.com/api/?name=John+Doe" class="w-10 h-10 rounded-full mr-3">
-                                <div>
-                                    <p class="font-semibold">John Doe</p>
-                                    <p class="text-sm text-gray-400">john.doe@example.com</p>
-                                </div>
-                            </div>
-
-                            <!-- Additional Details -->
-                            <div class="space-y-2 mb-4 text-sm text-gray-400">
-                                <div class="flex items-center">
-                                    <i class="fas fa-clock w-5"></i>
-                                    <span>Durée: 3 jours</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-map-marker-alt w-5"></i>
-                                    <span>Lieu de prise: Paris</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-credit-card w-5"></i>
-                                    <span>Paiement: Carte bancaire</span>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="grid grid-cols-2 gap-2 pt-4 border-t border-gray-700">
-                                <button onclick="showReservationDetails(<?php echo $i; ?>)" class="flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors duration-200">
-                                    <i class="fas fa-eye mr-2"></i> Détails
-                                </button>
-                                <button class="flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors duration-200">
-                                    <i class="fas fa-edit mr-2"></i> Modifier
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Detailed View Modal -->
-    <div id="reservationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-dark-light rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold">Détails de la réservation</h3>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-white">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="modalContent">
-                    <!-- Modal content will be dynamically inserted here -->
-                </div>
-            </div>
-        </div>
-    </div>
-        <!-- Ajout du script pour le toggle du sidebar -->
-        <script>
+    <?php
+    function getStatusClass($status)
+    {
+        return match ($status) {
+            'en attente' => 'status-pending',
+            'approuvée' => 'status-approved',
+            'refusée' => 'status-rejected',
+            'terminée' => 'status-completed',
+            'annuler' => 'status-cancelled',
+            default => ''
+        };
+    }
+
+    function formatDate($date)
+    {
+        return date('d/m/Y H:i', strtotime($date));
+    }
+
+    function getVehiculeImage($id)
+    {
+        $vehicule = Vehicule::getById($id);
+        return $vehicule['image_url'] ?? '../img/default-car.jpg';
+    }
+
+    function getVehiculeName($id)
+    {
+        $vehicule = Vehicule::getById($id);
+        return $vehicule['marque'] . ' ' . $vehicule['modele'] ?? 'Véhicule inconnu';
+    }
+    ?>
+    <!-- Ajout du script pour le toggle du sidebar -->
+    <script>
         // Handle Mobile Adjustments
         function handleMobileAdjustments() {
             const isMobile = window.innerWidth < 768;
@@ -350,7 +513,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
         function initialize() {
             setupSidebarToggle();
             handleMobileAdjustments();
-            initCharts();
         }
 
         // Event Listeners
@@ -362,7 +524,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 handleMobileAdjustments();
-                initCharts(); // Reinitialize charts on resize
             }, 250);
         });
     </script>

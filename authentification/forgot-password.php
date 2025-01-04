@@ -3,7 +3,6 @@ session_start();
 require_once '../app/controller/users.php';
 require_once '../app/controller/admins.php';
 require_once '../app/controller/PasswordReset.php';
-require_once __DIR__ . '/../vendor/autoload.php';
 
 $success = $error = '';
 
@@ -15,11 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($user || $admin) {
         $token = PasswordReset::generateToken($email);
-        $resetLink = "http://" . $_SERVER['HTTP_HOST'] . "/Drive-Loc/authentification/reset-password.php?email=" . urlencode($email) . "&token=" . $token;
+        $resetLink = "http://" . $_SERVER['HTTP_HOST'] . "/authentification/reset-password.php?email=" . urlencode($email) . "&token=" . $token;
         
         // Email content
         $to = $email;
-        $subject = "Réinitialisation de votre mot de passe WORLDY";
+        $subject = "Réinitialisation de votre mot de passe Drive-Loc";
         $message = "
             <h2>Réinitialisation de votre mot de passe</h2>
             <p>Bonjour,</p>
@@ -28,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p><a href='{$resetLink}'>{$resetLink}</a></p>
             <p>Ce lien expirera dans 1 heure.</p>
             <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-            <p>Cordialement,<br>L'équipe WORLDY</p>
+            <p>Cordialement,<br>L'équipe Drive-Loc</p>
         ";
         
         $headers = "From: bencheikh.official@gmail.com\r\n";
@@ -49,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORLDY - Mot de passe oublié</title>
+    <title>Drive-Loc - Mot de passe oublié</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="style.css">
 </head>

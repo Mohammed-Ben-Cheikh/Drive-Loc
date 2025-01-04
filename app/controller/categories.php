@@ -101,7 +101,28 @@ class Categorie
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function NbCategories()
+    {
+        $database = new Database();
+        $db = $database->connect();
+        $query = "SELECT count(*) AS total FROM categories";
+        $stmt = $db->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total'];
+    }
+
+    public static function GetCategories($lignes, $page = 1)
+    {
+        $database = new Database();
+        $db = $database->connect();
+        $offset = ($page - 1) * $lignes;
+        $query = $db->prepare("SELECT * FROM categories LIMIT :offset, :limit");
+        $query->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $query->bindParam(':limit', $lignes, PDO::PARAM_INT);
+        $query->execute();
+        $database->disconnect();
+        return $query->fetchAll();
+    }
 }
-
-
-

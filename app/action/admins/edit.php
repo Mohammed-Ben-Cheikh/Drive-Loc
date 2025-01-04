@@ -37,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 } else {
-    $id_admin = $_GET['id'];
-    $admin = Admin::getById($id_admin);
+    $id = $_SESSION['admin_id'];
+    $admin = Admin::getById($id);
     if (!$admin) {
         $error = 'Administrateur non trouvé';
     }

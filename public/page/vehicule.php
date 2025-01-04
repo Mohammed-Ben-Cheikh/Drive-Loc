@@ -33,7 +33,7 @@ if ($selectedCategory) {
     <script src="https://cdn.tailwindcss.com/"></script>
 </head>
 
-<body class="max-w-screen-xl flex bg-gradient-to-br from-gray-50 to-blue-50 flex-col mx-auto p-4">
+<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
     <main class="">
         <!-- Filtres et recherche -->
         <section

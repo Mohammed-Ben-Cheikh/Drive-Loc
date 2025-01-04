@@ -17,7 +17,7 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
     <link rel="stylesheet" href="../../src/output.css">
 </head>
 
-<body class="max-w-screen-xl flex bg-gradient-to-br from-gray-50 to-blue-50 flex-col mx-auto p-4">
+<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
     <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">

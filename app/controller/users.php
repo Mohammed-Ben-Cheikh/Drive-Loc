@@ -90,7 +90,7 @@ class User
     {
         $database = new Database();
         $db = $database->connect();
-        $sql = "SELECT * FROM user WHERE id_user = ?";
+        $sql = "SELECT * FROM users WHERE id_user = ?";
         $stmt = $db->prepare($sql);
         $stmt->execute([$id]);
         $database->disconnect();

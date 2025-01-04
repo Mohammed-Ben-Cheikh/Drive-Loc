@@ -33,11 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     $result = $reservation->ajouterReservationAvecProcedure();
-
-    if ($result['success']) {
+    // Mettre à jour les statistiques après l'inscription
+    StatistiquesManager::calculerEtMettreAJour();
+    if ($result) {
         $success = $result['message'];
+        header('Location: reservation.php?makayanWalo');
     } else {
         $error = "Erreur : " . $result['message'];
+        header('Location: reservation.php?kayankhata2');
     }
 }
 
@@ -58,7 +61,7 @@ $vehicule = Vehicule::getById($id);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 </head>
 
-<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 min-h-screen">
+<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
     <main class="max-w-7xl mx-auto p-4">
         <?php if ($vehicule): ?>
             <!-- Vehicle Showcase Section -->

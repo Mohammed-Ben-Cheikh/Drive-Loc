@@ -1,23 +1,48 @@
 <?php
 session_start();
-if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
-    header("Location: ../../dashboard");
-} else if (!isset($_SESSION['user_id']) && !$_SESSION['user_id']) {
+if (!isset($_SESSION['user_id']) || !$_SESSION['user_id']) {
     header("Location: ../../index.php");
+    exit();
+}
+
+require_once "../../app/controller/reservations.php";
+require_once "../../app/controller/vehicules.php";
+require_once "../../app/helpers/functions.php"; // Add this line
+
+// Get user's reservations
+$user_id = $_SESSION['user_id'];
+$reservations = Reservation::getByUser($user_id);
+
+// Handle cancellation
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $id_reservation = $_POST['id_reservation'] ?? '';
+
+    if ($action === 'cancel') {
+        try {
+            if (Reservation::updateStatut($id_reservation, 'annulée')) {
+                $success = "Votre réservation a été annulée avec succès.";
+                header("Refresh:0"); // Refresh the page
+            } else {
+                $error = "Erreur lors de l'annulation de la réservation.";
+            }
+        } catch (Exception $e) {
+            $error = "Erreur : " . $e->getMessage();
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mes Réservations - Drive-Loc</title>
     <script src="https://cdn.tailwindcss.com/"></script>
     <link rel="stylesheet" href="../../src/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
-<body class="max-w-screen-xl flex bg-gradient-to-br from-gray-50 to-blue-50 flex-col mx-auto p-4">
+<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
     <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -78,111 +103,122 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
             </div>
         </div>
     </nav>
-    <main>
-        <!-- Section Hero -->
-        <section
-            class="relative overflow-hidden rounded-[2rem] bg-white/50 backdrop-blur-sm border-4 border-white shadow-2xl p-8 mt-8">
-            <div class="absolute inset-0 bg-pattern opacity-5"></div>
-            <div class="container mx-auto px-4 py-8 relative">
-                <h1 class="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-4">Réservez Votre Chef</h1>
-                <p class="text-xl text-gray-600 text-center max-w-2xl mx-auto">
-                    Une expérience culinaire unique à domicile.
-                </p>
-            </div>
-        </section>
+    <main class="max-w-7xl mx-auto p-4">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">Mes Réservations</h1>
+            <p class="text-gray-300">Gérez vos réservations de véhicules</p>
+        </div>
 
-        <!-- Section Réservation -->
-        <section
-            class="flex items-center justify-center  rounded-[2rem] bg-white/50 backdrop-blur-sm border-4 border-white shadow-2xl mt-8 p-8">
-            <div class="w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl p-8 mx-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Informations de réservation -->
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-                            <h3 class="text-2xl font-bold text-blue-600 mb-4">Informations Client</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Nom complet</span>
-                                    <span class="text-gray-800">Ahmed Ben Ali</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Téléphone</span>
-                                    <span class="text-gray-800">+212 6XX XX XX XX</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Email</span>
-                                    <span class="text-gray-800">ahmed@example.com</span>
-                                </div>
+        <?php if (empty($reservations)): ?>
+            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-8 text-center">
+                <i class="fas fa-calendar-xmark text-4xl text-gray-400 mb-4"></i>
+                <h2 class="text-xl font-semibold text-white mb-2">Aucune réservation</h2>
+                <p class="text-gray-400 mb-4">Vous n'avez pas encore de réservation active.</p>
+                <a href="vehicules.php" 
+                   class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    Découvrir nos véhicules
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <?php foreach ($reservations as $reservation): 
+                    $vehicule = Vehicule::getById($reservation['id_vehicule_fk']);
+                ?>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10">
+                        <!-- Vehicle Image -->
+                        <div class="relative h-48">
+                            <img src="<?php echo $vehicule['image_url']; ?>" 
+                                 alt="<?php echo $vehicule['marque'] . ' ' . $vehicule['modele']; ?>"
+                                 class="w-full h-full object-cover">
+                            <div class="absolute top-4 right-4">
+                                <span class="px-4 py-2 rounded-full text-sm font-semibold <?php echo getStatusClass($reservation['statut']); ?>">
+                                    <?php echo getStatusLabel($reservation['statut']); ?>
+                                </span>
                             </div>
                         </div>
 
-                        <div class="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-                            <h3 class="text-2xl font-bold text-blue-600 mb-4">Détails de l'Événement</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Date</span>
-                                    <span class="text-gray-800">20 Décembre 2024</span>
+                        <!-- Reservation Details -->
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-white mb-2">
+                                <?php echo $vehicule['marque'] . ' ' . $vehicule['modele']; ?>
+                            </h3>
+                            
+                            <div class="space-y-3 text-gray-300">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar-alt w-6"></i>
+                                    <span>Du: <?php echo date('d/m/Y', strtotime($reservation['date_reservation'])); ?></span>
                                 </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Heure</span>
-                                    <span class="text-gray-800">19:00</span>
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar-check w-6"></i>
+                                    <span>Au: <?php echo date('d/m/Y', strtotime($reservation['date_limite'])); ?></span>
                                 </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Nombre d'invités</span>
-                                    <span class="text-gray-800">8 personnes</span>
+                                <div class="flex items-center">
+                                    <i class="fas fa-map-marker-alt w-6"></i>
+                                    <span><?php echo $reservation['lieux']; ?></span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-money-bill w-6"></i>
+                                    <span><?php echo $vehicule['prix_a_loue']; ?> €/jour</span>
                                 </div>
                             </div>
+
+                            <?php if ($reservation['commentaire']): ?>
+                                <div class="mt-4 p-4 bg-gray-800/50 rounded-lg">
+                                    <p class="text-gray-400 text-sm italic">
+                                        "<?php echo $reservation['commentaire']; ?>"
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Status Timeline -->
+                            <div class="mt-6 relative">
+                                <div class="flex justify-between mb-2">
+                                    <?php
+                                    $statuses = ['en attente', 'approuvée', 'terminée'];
+                                    $currentIndex = array_search($reservation['statut'], $statuses);
+                                    
+                                    foreach ($statuses as $index => $status):
+                                        $isActive = $index <= $currentIndex;
+                                    ?>
+                                        <div class="flex flex-col items-center">
+                                            <div class="w-6 h-6 rounded-full <?php echo $isActive ? 'bg-blue-500' : 'bg-gray-600'; ?> flex items-center justify-center">
+                                                <i class="fas fa-check text-white text-xs"></i>
+                                            </div>
+                                            <span class="text-xs text-gray-400 mt-1"><?php echo ucfirst($status); ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="absolute top-3 left-0 right-0 h-[2px] bg-gray-600 -z-10">
+                                    <div class="h-full bg-blue-500" style="width: <?php echo ($currentIndex / 2) * 100; ?>%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <?php if ($reservation['statut'] === 'en attente' || $reservation['statut'] === 'approuvée'): ?>
+                                <div class="mt-6 flex gap-2">
+                                    <form method="POST" class="w-full" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                                        <input type="hidden" name="id_reservation" value="<?php echo $reservation['id_reservation']; ?>">
+                                        <input type="hidden" name="action" value="cancel">
+                                        <button type="submit" 
+                                            class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
+                                            <i class="fas fa-times"></i>
+                                            Annuler
+                                        </button>
+                                    </form>
+                                    <?php if ($reservation['statut'] === 'approuvée'): ?>
+                                        <a href="facture.php?id=<?php echo $reservation['id_reservation']; ?>" 
+                                           class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                                            <i class="fas fa-file-invoice"></i>
+                                            Facture
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
-
-                    <!-- Menu et Statut -->
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-                            <h3 class="text-2xl font-bold text-blue-600 mb-4">Menu Sélectionné</h3>
-                            <div class="space-y-4">
-                                <div class="p-4 bg-white rounded-lg shadow-sm">
-                                    <h4 class="font-semibold text-lg mb-2">Menu Marocain Traditionnel</h4>
-                                    <ul class="space-y-2 text-gray-600">
-                                        <li>• Entrées traditionnelles variées</li>
-                                        <li>• Tajine au choix</li>
-                                        <li>• Couscous Royal</li>
-                                        <li>• Desserts marocains</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-                            <h3 class="text-2xl font-bold text-blue-600 mb-4">Statut</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">État de la réservation</span>
-                                    <span
-                                        class="px-4 py-1 bg-green-100 text-green-600 rounded-full font-medium">Confirmée</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 font-medium">Paiement</span>
-                                    <span class="px-4 py-1 bg-blue-100 text-blue-600 rounded-full font-medium">Acompte
-                                        reçu</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="mt-8 flex justify-center gap-4">
-                    <button
-                        class="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-300">
-                        Modifier la réservation
-                    </button>
-                    <button
-                        class="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors duration-300">
-                        Annuler la réservation
-                    </button>
-                </div>
+                <?php endforeach; ?>
             </div>
-        </section>
+        <?php endif; ?>
     </main>
     <footer class="bg-gradient-to-t from-blue-400 to-blue-600 rounded-[2rem] shadow-2xl border-4 border-white/20 mt-8">
         <div class="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
@@ -255,7 +291,7 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
                     <a href="#" class="text-white hover:text-gray-900 dark:hover:text-white ms-5">
                         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                             viewBox="0 0 20 17">
-                            <path fill-rule="evenodd"
+                            <path
                                 d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235 8.344 8.344 0 0 1-2.605.98A4.13 4.13 0 0 0 13.85 0a4.068 4.068 0 0 0-4.1 4.038 4 4 0 0 0 .105.919A11.705 11.705 0 0 1 1.4.734a4.006 4.006 0 0 0 1.268 5.392 4.165 4.165 0 0 1-1.859-.5v.05A4.057 4.057 0 0 0 4.1 9.635a4.19 4.19 0 0 1-1.856.07 4.108 4.108 0 0 0 3.831 2.807A8.36 8.36 0 0 1 0 14.184 11.732 11.732 0 0 0 6.291 16 11.502 11.502 0 0 0 17.964 4.5c0-.177 0-.35-.012-.523A8.143 8.143 0 0 0 20 1.892Z"
                                 clip-rule="evenodd" />
                         </svg>
@@ -303,5 +339,4 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
         });
     </script>
 </body>
-
 </html>

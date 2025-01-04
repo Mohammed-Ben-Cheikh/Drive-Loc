@@ -229,8 +229,11 @@ class Vehicule
         return $result;
     }
 
-    public static function updateDisponibilite($id, $disponibilite)
-    {
+    public static function updateDisponibilite($id, $disponibilite) {
+        if (!in_array($disponibilite, ['Disponible', 'Indisponible', 'Réservé'])) {
+            throw new InvalidArgumentException("Statut de disponibilité invalide");
+        }
+
         $database = new Database();
         $db = $database->connect();
         $sql = "UPDATE vehicules SET disponibilite = ? WHERE id_vehicule = ?";
@@ -238,6 +241,19 @@ class Vehicule
         $result = $stmt->execute([$disponibilite, $id]);
         $database->disconnect();
         return $result;
+    }
+
+    public static function isAvailable($id) {
+        $database = new Database();
+        $db = $database->connect();
+        
+        $sql = "SELECT disponibilite FROM vehicules WHERE id_vehicule = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $database->disconnect();
+        return $result && $result['disponibilite'] === 'Disponible';
     }
 }
 

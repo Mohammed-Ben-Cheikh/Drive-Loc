@@ -5,6 +5,9 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
 } else if (!isset($_SESSION['user_id']) && !$_SESSION['user_id']) {
     header("Location: ../../index.php");
 }
+
+require_once '../../app/controller/users.php';
+$user = User::getById($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +20,7 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
     <link rel="stylesheet" href="../../src/output.css">
 </head>
 
-<body class="max-w-screen-xl flex bg-gradient-to-br from-gray-50 to-blue-50 flex-col mx-auto p-4">
+<body class="max-w-screen-xl bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col mx-auto p-4">
     <nav
         class="relative bg-gradient-to-r from-blue-400 to-blue-600 rounded-[2rem] border-gray-200 shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -99,51 +102,169 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
             <div
                 class="w-full h-full bg-gradient-to-b from-blue-600 to-black text-white p-6 rounded-xl overflow-y-auto border-8 border-black">
                 <div class="max-w-4xl mx-auto space-y-8">
+                    <!-- user Profile Card -->
+                    <div class="bg-dark-light rounded-xl shadow-xl p-6">
+                        <?php if ($user): ?>
+                            <div class="flex items-center space-x-4 mb-6">
+                                <img class="h-24 w-24 rounded-full"
+                                    src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['nom'] . '+' . $user['prenom']); ?>"
+                                    alt="">
+                                <div>
+                                    <h2 class="text-2xl font-bold"><?php echo $user['nom'] . ' ' . $user['prenom']; ?></h2>
+                                    <p class="text-gray-400"><?php echo $user['email']; ?></p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-2">Informations Personnelles</h3>
+                                    <p class="text-gray-400"><strong>Nom:</strong> <?php echo $user['nom']; ?></p>
+                                    <p class="text-gray-400"><strong>Prénom:</strong> <?php echo $user['prenom']; ?></p>
+                                    <p class="text-gray-400"><strong>Email:</strong> <?php echo $user['email']; ?></p>
+                                    <p class="text-gray-400"><strong>Téléphone:</strong> <?php echo $user['telephone']; ?>
+                                    </p>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-2">Informations de Connexion</h3>
+                                    <p class="text-gray-400"><strong>Username:</strong>
+                                        <?php echo $user['username']; ?></p>
+                                    <p class="text-gray-400"><strong>Email:</strong>
+                                        <?php echo $user['email']; ?></p>
+
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-red-500">useristrateur non trouvé.</p>
+                        <?php endif; ?>
+                    </div>
                     <!-- Profile Settings -->
                     <div id="profile" class="bg-white text-gray-800 rounded-lg p-6 shadow-lg">
                         <h2 class="text-2xl font-bold mb-6">Profile Settings</h2>
                         <form id="profileForm" class="space-y-4" action="update_profile.php" method="POST">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Nom -->
                                 <div>
                                     <label class="block text-sm font-medium mb-2" for="nom">Nom <span
                                             class="text-red-500">*</span></label>
                                     <input type="text" id="nom" name="nom"
-                                        value="<?= htmlspecialchars($admin['nom'] ?? '') ?>"
+                                        value="<?= htmlspecialchars($user['nom'] ?? '') ?>"
                                         class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         required>
                                 </div>
+
+                                <!-- Prénom -->
                                 <div>
                                     <label class="block text-sm font-medium mb-2" for="prenom">Prénom <span
                                             class="text-red-500">*</span></label>
                                     <input type="text" id="prenom" name="prenom"
-                                        value="<?= htmlspecialchars($admin['prenom'] ?? '') ?>"
+                                        value="<?= htmlspecialchars($user['prenom'] ?? '') ?>"
                                         class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         required>
                                 </div>
+
+                                <!-- Username -->
                                 <div>
                                     <label class="block text-sm font-medium mb-2" for="username">Username <span
                                             class="text-red-500">*</span></label>
                                     <input type="text" id="username" name="username"
-                                        value="<?= htmlspecialchars($admin['username'] ?? '') ?>"
+                                        value="<?= htmlspecialchars($user['username'] ?? '') ?>"
                                         class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         required>
                                 </div>
+
+                                <!-- Email -->
                                 <div>
                                     <label class="block text-sm font-medium mb-2" for="email">Email <span
                                             class="text-red-500">*</span></label>
                                     <input type="email" id="email" name="email"
-                                        value="<?= htmlspecialchars($admin['email'] ?? '') ?>"
+                                        value="<?= htmlspecialchars($user['email'] ?? '') ?>"
                                         class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         required>
                                 </div>
+
+                                <!-- Téléphone -->
                                 <div>
                                     <label class="block text-sm font-medium mb-2" for="telephone">Téléphone</label>
                                     <input type="tel" id="telephone" name="telephone"
-                                        value="<?= htmlspecialchars($admin['telephone'] ?? '') ?>"
+                                        value="<?= htmlspecialchars($user['telephone'] ?? '') ?>"
                                         class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        pattern="[0-9]{10}">
+                                        pattern="[0-9]{10}" placeholder="Ex: 0612345678">
+                                </div>
+
+                                <!-- Code postal -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="code_postal">Code Postal <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" id="code_postal" name="code_postal"
+                                        value="<?= htmlspecialchars($user['code_postal'] ?? '') ?>"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required pattern="[0-9]{5}" placeholder="Ex: 75001">
+                                </div>
+
+                                <!-- Pays -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="pays">Pays <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" id="pays" name="pays"
+                                        value="<?= htmlspecialchars($user['pays'] ?? '') ?>"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required>
+                                </div>
+
+                                <!-- Ville -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="ville">Ville <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" id="ville" name="ville"
+                                        value="<?= htmlspecialchars($user['ville'] ?? '') ?>"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required>
                                 </div>
                             </div>
+
+                            <div class="space-y-4">
+                                <!-- Adresse -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="adresse">Adresse <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" id="adresse" name="adresse"
+                                        value="<?= htmlspecialchars($user['adresse'] ?? '') ?>"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required>
+                                </div>
+
+                                <!-- Mot de passe actuel -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="current_password">Mot de passe
+                                        actuel <span class="text-red-500">*</span></label>
+                                    <input type="password" id="current_password" name="current_password"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required>
+                                </div>
+
+                                <!-- Nouveau mot de passe -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="new_password">Nouveau mot de
+                                        passe <span class="text-red-500">*</span></label>
+                                    <input type="password" id="new_password" name="new_password"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required minlength="8"
+                                        pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}"
+                                        title="Doit inclure au moins une majuscule, une minuscule, un chiffre et un caractère spécial.">
+                                    <p class="text-sm text-gray-500 mt-1">Le mot de passe doit contenir au moins 8
+                                        caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.
+                                    </p>
+                                </div>
+
+                                <!-- Confirmation du mot de passe -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="confirm_password">Confirmer le
+                                        nouveau mot de passe <span class="text-red-500">*</span></label>
+                                    <input type="password" id="confirm_password" name="confirm_password"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        required>
+                                </div>
+                            </div>
+
                             <div class="flex items-center justify-end space-x-4">
                                 <span id="profileStatus" class="text-sm hidden"></span>
                                 <button type="submit"
@@ -153,48 +274,7 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
                                 </button>
                             </div>
                         </form>
-                    </div>
 
-                    <!-- Security Settings -->
-                    <div id="security" class="bg-white text-gray-800 rounded-lg p-6 shadow-lg">
-                        <h2 class="text-2xl font-bold mb-6">Security Settings</h2>
-                        <form id="securityForm" class="space-y-4" action="update_security.php" method="POST">
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-2" for="current_password">Current
-                                        Password
-                                        <span class="text-red-500">*</span></label>
-                                    <input type="password" id="current_password" name="current_password"
-                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-2" for="new_password">New Password <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="password" id="new_password" name="new_password"
-                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required>
-                                    <p class="text-sm text-gray-500 mt-1">Password must be at least 8 characters long
-                                        and
-                                        include uppercase, lowercase, number, and special character.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-2" for="confirm_password">Confirm New
-                                        Password <span class="text-red-500">*</span></label>
-                                    <input type="password" id="confirm_password" name="confirm_password"
-                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-end space-x-4">
-                                <span id="securityStatus" class="text-sm hidden"></span>
-                                <button type="submit"
-                                    class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
-                                    <span class="loader hidden mr-2"></span>
-                                    Update Password
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
