@@ -5,7 +5,6 @@ class Review
 {
     private $id_user_fk;
     private $id_vehicule_fk;
-    private $statut;
     private $rating;
     private $comment;
 
@@ -14,11 +13,9 @@ class Review
         $id_vehicule_fk,
         $comment,
         $rating,
-        $statut = 'en attente'
     ) {
         $this->id_user_fk = $id_user_fk;
         $this->id_vehicule_fk = $id_vehicule_fk;
-        $this->statut = $statut;
         $this->rating = $rating;
         $this->comment = $comment;
     }
@@ -27,13 +24,12 @@ class Review
     {
         $database = new Database();
         $db = $database->connect();
-        $sql = "INSERT INTO reviews (id_user_fk, id_vehicule_fk, statut, rating, comment) 
-                VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO reviews (id_user_fk, id_vehicule_fk, rating, comment) 
+                VALUES (?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         $stmt->execute([
             $this->id_user_fk,
             $this->id_vehicule_fk,
-            $this->statut,
             $this->rating,
             $this->comment
         ]);

@@ -8,26 +8,29 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
     exit();
 }
 
+
 require_once "../../controller/reviews.php";
+require_once "../../controller/users.php";
+
+$reviews = Review::getByVehicle($_GET['id']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $id_vehicule = isset($_POST['id_vehicule']) ? intval($_POST['id_vehicule']) : null;
-    $rating = isset($_POST['rating']) ? intval($_POST['rating']) : null;
-    $comment = isset($_POST['review']) ? trim(htmlspecialchars($_POST['review'])) : null;
+    $id_vehicule = $_POST['id_vehicule'];
+    $rating = $_POST['rating'];
+    $comment = $_POST['review'];
 
     if ($id_vehicule && $rating && $comment) {
         // Create a new review instance
         $reviews = new Review(
-            null,
+            $_SESSION['user_id'],
             $id_vehicule,
-            'en attente', 
-            $rating,
-            $comment
+            $comment,
+            $rating
         );
 
         if ($reviews->create()) {
-            header("Location: success_page.php");
+            header("Location: ficheTechnique.php?id=" . $id_vehicule . "");
             exit;
         }
     }
@@ -259,222 +262,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section
             class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-700 shadow-2xl p-8 mt-12">
             <div class="relative text-white">
-                <!-- Header Section -->
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold tracking-wide">Avis de nos clients</h2>
-                    <button type="button" id="openModal"
-                        class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold py-3 px-6 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105">
-                        Ajouter un avis
-                    </button>
-                </div>
-                <!-- Carrousel -->
-                <div class="swiper-container">
-                    <div class="swiper-wrapper">
-                        <?php for ($i = 0; $i < 9; $i++): ?>
-                            <div
-                                class="swiper-slide group bg-gray-800 rounded-xl transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                                <div class="p-6">
-                                    <!-- User Info -->
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div class="flex items-center">
-                                            <img src="https://ui-avatars.com/api/?name=John+Doe" alt="John Doe"
-                                                class="w-12 h-12 rounded-full border border-gray-600 mr-3">
-                                            <div>
-                                                <h3 class="font-bold text-lg">John Doe</h3>
-                                                <p class="text-sm text-gray-400">Il y a 2 jours</p>
+                <?php if (empty($reviews)): ?>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-xl p-8 text-center">
+                        <i class="fas fa-calendar-xmark text-4xl text-gray-400 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white mb-2">Aucune review</h2>
+                        <p class="text-gray-400 mb-4">La vehicule n'avez pas encore de reviews</p>
+                        <button type="button" id="openModal"
+                            class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold py-3 px-6 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105">
+                            Ajouter un avis
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <!-- Header Section -->
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold tracking-wide">Avis de nos clients</h2>
+                        <button type="button" id="openModal"
+                            class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold py-3 px-6 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105">
+                            Ajouter un avis
+                        </button>
+                    </div>
+                    <!-- Carrousel -->
+                    <div class="swiper-container">
+                        <div class="swiper-wrapper">
+                            <?php foreach ($reviews as $review):
+                                $user = User::getById($review['id_user_fk']); ?>
+                                <div
+                                    class="swiper-slide group bg-gray-800 rounded-xl transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+                                    <div class="p-6">
+                                        <!-- User Info -->
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div class="flex items-center">
+                                                <img src="https://ui-avatars.com/api/?name=John+Doe" alt="John Doe"
+                                                    class="w-12 h-12 rounded-full border border-gray-600 mr-3">
+                                                <div>
+                                                    <h3 class="font-bold text-lg">
+                                                        <?php echo htmlspecialchars($user['nom'] . ' ' . $user['prenom']); ?>
+                                                    </h3>
+                                                    <p class="text-sm text-gray-400">Il y a 2 jours</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex space-x-1 ">
+                                                <span class="text-yellow-400">
+                                                    <?php for ($j = 0; $j < $review['rating']; $j++): ?>
+                                                        <i class="fas fa-star"></i>
+                                                    <?php endfor; ?></span><span>
+                                                    <?php for ($j = 0; $j < 5 - $review['rating']; $j++): ?>
+                                                        <i class="fas fa-star"></i>
+                                                    <?php endfor; ?></span>
                                             </div>
                                         </div>
-                                        <div class="flex space-x-1 text-yellow-400">
-                                            <?php for ($j = 0; $j < 5; $j++): ?>
-                                                <i class="fas fa-star"></i>
-                                            <?php endfor; ?>
-                                        </div>
+                                        <!-- Review Text -->
+                                        <p class="text-gray-300 text-sm italic mb-4">
+                                            "<?php echo nl2br(htmlspecialchars($review['comment'])); ?>"</p>
                                     </div>
-                                    <!-- Review Text -->
-                                    <p class="text-gray-300 text-sm italic mb-4">
-                                        "Service exceptionnel, voiture en excellent état et équipe très professionnelle. Je
-                                        recommande vivement !"
-                                    </p>
                                 </div>
-                            </div>
-                        <?php endfor; ?>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
         </section>
         <div id="reviewModal" class="fixed inset-0 bg-black/75 z-50 hidden">
             <!-- Modal Content -->
-            <div class="bg-white dark:bg-gray-800 w-full max-w-md mx-4 rounded-xl shadow-xl p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Laisser un Avis</h2>
-                    <button id="closeModal" class="text-gray-400 hover:text-gray-500">
-                        ✕
-                    </button>
-                </div>
+            <div class="flex items-center justify-center w-full h-full">
+                <div class="bg-white dark:bg-gray-800 w-full max-w-md mx-4 rounded-xl shadow-xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Laisser un Avis</h2>
+                        <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+                            ✕
+                        </button>
+                    </div>
 
-                <form id="reviewForm">
-                    
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Note</label>
-                        <div class="flex gap-1">
-                            <span data-rating="1" class="star text-3xl cursor-pointer text-gray-300"><i
-                                    class="fas fa-star"></i></span>
-                            <span data-rating="2" class="star text-3xl cursor-pointer text-gray-300"><i
-                                    class="fas fa-star"></i></span>
-                            <span data-rating="3" class="star text-3xl cursor-pointer text-gray-300"><i
-                                    class="fas fa-star"></i></span>
-                            <span data-rating="4" class="star text-3xl cursor-pointer text-gray-300"><i
-                                    class="fas fa-star"></i></span>
-                            <span data-rating="5" class="star text-3xl cursor-pointer text-gray-300"><i
-                                    class="fas fa-star"></i></span>
+                    <form action="ficheTechnique.php" method="post" id="reviewForm">
+                        <input type="hidden" name="id_vehicule" id="id_vehicule"
+                            value="<?php echo htmlspecialchars($vehicule['id_vehicule']); ?>">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2">Note</label>
+                            <div class="flex gap-1">
+                                <span data-rating="1" class="star text-3xl cursor-pointer text-gray-300"><i
+                                        class="fas fa-star"></i></span>
+                                <span data-rating="2" class="star text-3xl cursor-pointer text-gray-300"><i
+                                        class="fas fa-star"></i></span>
+                                <span data-rating="3" class="star text-3xl cursor-pointer text-gray-300"><i
+                                        class="fas fa-star"></i></span>
+                                <span data-rating="4" class="star text-3xl cursor-pointer text-gray-300"><i
+                                        class="fas fa-star"></i></span>
+                                <span data-rating="5" class="star text-3xl cursor-pointer text-gray-300"><i
+                                        class="fas fa-star"></i></span>
+                            </div>
+                            <!-- Input caché pour stocker la valeur -->
+                            <input type="hidden" name="rating" id="ratingInput" value="0">
                         </div>
-                        <!-- Input caché pour stocker la valeur -->
-                        <input type="hidden" name="rating" id="ratingInput" value="0">
-                    </div>
 
-                    <!-- Comment -->
-                    <div class="mb-6">
-                        <label for="review" class="block text-gray-700 mb-2">Votre Commentaire</label>
-                        <textarea id="review" name="review" rows="4" required
-                            class="w-full rounded-lg border-gray-300 border p-3 focus:border-blue-500"
-                            placeholder="Partagez votre expérience..."></textarea>
-                    </div>
+                        <!-- Comment -->
+                        <div class="mb-6">
+                            <label for="review" class="block text-gray-700 mb-2">Votre Commentaire</label>
+                            <textarea id="review" name="review" rows="4" required
+                                class="w-full rounded-lg border-gray-300 border p-3 focus:border-blue-500"
+                                placeholder="Partagez votre expérience..."></textarea>
+                        </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit"
-                        class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Soumettre l'Avis
-                    </button>
-                </form>
+                        <!-- Submit Button -->
+                        <button type="submit"
+                            class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Soumettre l'Avis
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Elements
-                const modal = document.getElementById('reviewModal');
-                const addReviewButton = document.getElementById('openModal');
-                const closeBtn = document.getElementById('closeModal');
-                const form = document.getElementById('reviewForm');
-                const stars = document.querySelectorAll('.star');
-                const ratingInput = document.getElementById('ratingInput');
-                let currentRating = 0;
-
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-
-                    if (ratingInput.value === '0') {
-                        alert('Veuillez sélectionner une note');
-                        return;
-                    }
-
-                    // Continuez avec la soumission du formulaire
-                    console.log('Note sélectionnée:', ratingInput.value);
-                    // ... reste de votre code de soumission
-                });
-
-                // Action du bouton "Ajouter un avis"
-                addReviewButton.onclick = function () {
-                    modal.classList.remove('hidden');
-                };
-
-                // Close modal
-                closeBtn.onclick = function () {
-                    modal.classList.add('hidden');
-                }
-
-                // Star rating
-                stars.forEach((star, index) => {
-                    // Hover effect
-                    star.addEventListener('mouseover', () => {
-                        updateStars(index + 1);
-                    });
-
-                    star.addEventListener('mouseout', () => {
-                        updateStars(currentRating);
-                    });
-
-                    // Click effect
-                    star.addEventListener('click', () => {
-                        currentRating = index + 1;
-                        ratingInput.value = currentRating;
-                        updateStars(currentRating);
-                    });
-                });
-
-                function updateStars(count) {
-                    stars.forEach((star, index) => {
-                        star.style.color = index < count ? '#fbbf24' : '#d1d5db';
-                    });
-                }
-
-                // Form submission
-                form.onsubmit = async function (e) {
-                    e.preventDefault();
-
-                    if (currentRating === 0) {
-                        alert('Veuillez sélectionner une note');
-                        return;
-                    }
-
-                    const formData = new FormData(form);
-
-                    try {
-                        // For testing - log the data
-                        console.log({
-                            rating: formData.get('rating'),
-                            review: formData.get('review')
-                        });
-
-                        // Here you would normally send to server
-                        const response = await fetch('ficheTechnique.php', {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        alert('Merci pour votre avis !');
-                        form.reset();
-                        currentRating = 0;
-                        updateStars(0);
-                        modal.classList.add('hidden');
-
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('Une erreur est survenue');
-                    }
-                }
-
-                // Close on escape key
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        modal.classList.add('hidden');
-                    }
-                });
-
-                // Close on outside click
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.classList.add('hidden');
-                    }
-                });
-            });
-        </script>
-        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const swiper = new Swiper('.swiper-container', {
-                    loop: false,
-                    spaceBetween: 20,
-                    slidesPerView: 1,
-                    breakpoints: {
-                        640: { slidesPerView: 2 },
-                        1024: { slidesPerView: 3 },
-                    },
-                });
-            });
-        </script>
     </main>
-
     <footer class="bg-gradient-to-t from-blue-400 to-blue-600 rounded-[2rem] shadow-2xl border-4 border-white/20 mt-8">
         <div class="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <div class="md:flex md:justify-between">
@@ -576,6 +473,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Elements
+            const modal = document.getElementById('reviewModal');
+            const addReviewButton = document.getElementById('openModal');
+            const closeBtn = document.getElementById('closeModal');
+            const form = document.getElementById('reviewForm');
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.getElementById('ratingInput');
+            let currentRating = 0;
+
+            // Action du bouton "Ajouter un avis"
+            addReviewButton.onclick = function () {
+                modal.classList.remove('hidden');
+            };
+
+            // Close modal
+            closeBtn.onclick = function () {
+                modal.classList.add('hidden');
+            }
+
+            // Star rating
+            stars.forEach((star, index) => {
+                // Hover effect
+                star.addEventListener('mouseover', () => {
+                    updateStars(index + 1);
+                });
+
+                star.addEventListener('mouseout', () => {
+                    updateStars(currentRating);
+                });
+
+                // Click effect
+                star.addEventListener('click', () => {
+                    currentRating = index + 1;
+                    ratingInput.value = currentRating;
+                    updateStars(currentRating);
+                });
+            });
+
+            function updateStars(count) {
+                stars.forEach((star, index) => {
+                    star.style.color = index < count ? '#fbbf24' : '#d1d5db';
+                });
+            }
+
+            // Close on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    modal.classList.add('hidden');
+                }
+            });
+
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const swiper = new Swiper('.swiper-container', {
+                loop: false,
+                spaceBetween: 20,
+                slidesPerView: 1,
+                breakpoints: {
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                },
+            });
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const toggleButton = document.querySelector("[data-collapse-toggle='navbar-user']");
