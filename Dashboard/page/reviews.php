@@ -4,7 +4,16 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
     header("Location: ../../public");
 } else if (!isset($_SESSION['admin_id']) && !$_SESSION['admin_id']) {
     header("Location: ../../index.php");
-} 
+}
+
+require_once "../../app/controller/reviews.php";
+require_once "../../app/controller/users.php";
+
+require_once '../../app/controller/statistiquesManager.php';
+
+$stats = StatistiquesManager::getRStats();
+
+$reviews = Review::getAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -112,7 +121,8 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100"><i
                                         class="fas fa-cog mr-2"></i> Settings</a>
                                 <hr class="my-2">
-                                <a href="../../authentification/logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
+                                <a href="../../authentification/logout.php"
+                                    class="block px-4 py-2 text-red-600 hover:bg-gray-100"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                             </div>
                         </div>
@@ -125,12 +135,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                 <!-- Page Header -->
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">Gestion des Avis Clients</h1>
-                    <div class="flex space-x-3">
-                        <button
-                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center">
-                            <i class="fas fa-download mr-2"></i> Exporter les avis
-                        </button>
-                    </div>
                 </div>
 
                 <!-- Statistics Cards -->
@@ -140,7 +144,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                             <div>
                                 <p class="text-white/60">Note Moyenne</p>
                                 <div class="flex items-center">
-                                    <h3 class="text-3xl font-bold">4.8</h3>
+                                    <h3 class="text-3xl font-bold"><?php echo number_format($stats['total_rating']/$stats['total_r'],2); ?></h3>
                                     <div class="ml-2 text-yellow-400">
                                         <i class="fas fa-star"></i>
                                     </div>
@@ -152,23 +156,11 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-xl p-4">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-white/60">Avis Positifs</p>
-                                <h3 class="text-3xl font-bold">85%</h3>
-                            </div>
-                            <div class="text-white/80 bg-white/10 p-3 rounded-lg">
-                                <i class="fas fa-thumbs-up text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-4">
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">Total Avis</p>
-                                <h3 class="text-3xl font-bold">1,234</h3>
+                                <h3 class="text-3xl font-bold"><?php echo nl2br(htmlspecialchars($stats['total_r'])); ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-comments text-2xl"></i>
@@ -180,7 +172,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                         <div class="flex justify-between items-center">
                             <div>
                                 <p class="text-white/60">À Modérer</p>
-                                <h3 class="text-3xl font-bold">23</h3>
+                                <h3 class="text-3xl font-bold"><?php echo nl2br(htmlspecialchars($stats['action_r'])); ?></h3>
                             </div>
                             <div class="text-white/80 bg-white/10 p-3 rounded-lg">
                                 <i class="fas fa-clock text-2xl"></i>
@@ -188,50 +180,76 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                         </div>
                     </div>
                 </div>
-
-                <!-- Filters Section -->
-                <div class="bg-dark-light rounded-xl p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Filtre par note</label>
-                            <select
-                                class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-600">
-                                <option value="">Toutes les notes</option>
-                                <option value="5">5 étoiles</option>
-                                <option value="4">4 étoiles</option>
-                                <option value="3">3 étoiles</option>
-                                <option value="2">2 étoiles</option>
-                                <option value="1">1 étoile</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Statut</label>
-                            <select
-                                class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-600">
-                                <option value="">Tous les statuts</option>
-                                <option value="approved">Approuvé</option>
-                                <option value="pending">En attente</option>
-                                <option value="rejected">Rejeté</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Date</label>
-                            <input type="date"
-                                class="w-full bg-gray-800 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-600">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Rechercher</label>
-                            <div class="relative">
-                                <input type="search"
-                                    class="w-full bg-gray-800 text-white rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-purple-600"
-                                    placeholder="Rechercher un avis...">
-                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                <!-- reviews Section -->
+                <section
+                    class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-700 shadow-2xl p-8 mt-4">
+                    <div class="relative text-white">
+                        <?php if (empty($reviews)): ?>
+                            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-8 text-center">
+                                <i class="fas fa-calendar-xmark text-4xl text-gray-400 mb-4"></i>
+                                <h2 class="text-xl font-semibold text-white mb-2">Aucune review</h2>
+                                <p class="text-gray-400 mb-4">N'avez pas encore de reviews</p>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <!-- Header Section -->
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold tracking-wide">Avis de nos clients</h2>
+                            </div>
+                            <!-- Carrousel -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <?php foreach ($reviews as $review):
+                                $user = User::getById($review['id_user_fk']); ?>
+                                <div
+                                    class="swiper-slide group bg-gray-800 rounded-xl transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+                                    <div class="p-6">
+                                        <!-- User Info -->
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div class="flex items-center">
+                                                <img src="https://ui-avatars.com/api/?name=John+Doe" alt="John Doe"
+                                                    class="w-12 h-12 rounded-full border border-gray-600 mr-3">
+                                                <div>
+                                                    <h3 class="font-bold text-lg">
+                                                        <?php echo htmlspecialchars($user['nom'] . ' ' . $user['prenom']); ?>
+                                                    </h3>
+                                                    <p class="text-sm text-gray-400">Il y a 2 jours</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex space-x-1 ">
+                                                <span class="text-yellow-400">
+                                                    <?php for ($j = 0; $j < $review['rating']; $j++): ?>
+                                                        <i class="fas fa-star"></i>
+                                                    <?php endfor; ?></span><span>
+                                                    <?php for ($j = 0; $j < 5 - $review['rating']; $j++): ?>
+                                                        <i class="fas fa-star"></i>
+                                                    <?php endfor; ?></span>
+                                            </div>
+                                        </div>
+                                        <!-- Review Text -->
+                                        <p class="text-gray-300 text-sm italic mb-4">
+                                            "<?php echo nl2br(htmlspecialchars($review['comment'])); ?>"</p>
+                                            <div class="flex justify-between items-center pt-4 border-t border-gray-700">
+                                    <div class="flex space-x-2">
+                                        <button
+                                            class="px-3 py-1 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/30">
+                                            <i class="fas fa-check mr-1"></i> Approuver
+                                        </button>
+                                        <button class="px-3 py-1 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30">
+                                            <i class="fas fa-times mr-1"></i> Rejeter
+                                        </button>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                </div>
+                </section>
 
-                <!-- Reviews Grid -->
+                <!-- Reviews Grid
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <?php for ($i = 0; $i < 9; $i++): ?>
                         <div class="bg-dark-light rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300">
@@ -279,7 +297,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
                             </div>
                         </div>
                     <?php endfor; ?>
-                </div>
+                </div> -->
 
                 <!-- Pagination -->
                 <div class="mt-6 flex justify-center">

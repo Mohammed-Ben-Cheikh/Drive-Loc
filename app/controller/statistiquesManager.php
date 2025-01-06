@@ -116,4 +116,27 @@ class StatistiquesManager
         $database->disconnect();
         return $stats;
     }
+
+    public static function getRStats()
+    {
+        $database = new Database();
+        $db = $database->connect();
+
+        $stats = [];
+
+        $query = "SELECT COUNT(*) as total_r FROM reviews";
+        $stmt = $db->query($query);
+        $stats['total_r'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_r'];
+
+        $query = "SELECT SUM(rating) as total_r FROM reviews";
+        $stmt = $db->query($query);
+        $stats['total_rating'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_r'];
+
+        $query = "SELECT COUNT(*) as action_r FROM reviews WHERE statut = 'en attente'";
+        $stmt = $db->query($query);
+        $stats['action_r'] = $stmt->fetch(PDO::FETCH_ASSOC)['action_r'];
+
+        $database->disconnect();
+        return $stats;
+    }
 }
