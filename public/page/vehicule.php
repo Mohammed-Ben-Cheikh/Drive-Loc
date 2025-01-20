@@ -30,7 +30,7 @@ if ($selectedCategory) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../../src/output.css">
-    <script src="https://cdn.tailwindcss.com/"></script>
+    <script src="http://localhost/Drive-Loc-/tailwindcss.js"></script>
 </head>
 
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col p-4">
@@ -136,9 +136,9 @@ if ($selectedCategory) {
 
                         <!-- Bouton de réservation -->
                         <?php if ($vehicle['disponibilite'] === 'Disponible'): ?>
-                            <a href="addCommand.php?id=<?= $vehicle['id_vehicule'] ?>"
+                            <a href="/app/action/vehicule/ficheTechnique.php?id=<?= $vehicle['id_vehicule'] ?>"
                                 class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-blue-500/30">
-                                Réserver maintenant
+                                Voir les détails
                             </a>
                         <?php else: ?>
                             <button disabled

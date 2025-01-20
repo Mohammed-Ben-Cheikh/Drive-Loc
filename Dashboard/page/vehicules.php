@@ -21,7 +21,7 @@ $stats = StatistiquesManager::getVehicleStats(); // Add this line to get the sta
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drive-Loc Dashboard</title>
     <link rel="stylesheet" href="../../src/output.css">
-    <script src="https://cdn.tailwindcss.com/"></script>
+    <script src="http://localhost/Drive-Loc-/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 

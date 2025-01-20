@@ -6,6 +6,7 @@
         "disponibilite",
         "driveloc",
         "ERRMODE",
+        "getall",
         "herocar",
         "herocarjpg",
         "kilometrage",
@@ -13,6 +14,7 @@
         "prenom",
         "refusees",
         "reser",
+        "statutreservation",
         "terminee",
         "vehicule",
         "vehicules"

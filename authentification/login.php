@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_nom'] = $user['nom'];
         $_SESSION['user_prenom'] = $user['prenom'];
         $_SESSION['user_adresse'] = $user['adresse'];
-        header('Location: ../dashboard');
+        header('Location: ../public');
         exit();
     } else if ($admin && password_verify($password, $admin['mot_de_passe'])) {
         $_SESSION['admin_id'] = $admin['id_admin'];

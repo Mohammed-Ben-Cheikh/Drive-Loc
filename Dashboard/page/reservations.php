@@ -12,30 +12,37 @@ require_once __DIR__ . '/../../app/controller/reservations.php';
 require_once __DIR__ . '/../../app/controller/users.php';
 require_once __DIR__ . '/../../app/controller/vehicules.php';
 require_once '../../app/controller/statistiquesManager.php';
+require_once '../../app/controller/updateDisponibilite.php';
+
 $stats = StatistiquesManager::getDashboardStats();
 // Gestion des actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $id_reservation = $_POST['id_reservation'] ?? '';
+    UpdateDisponibilite::UpdateDisponibilite();
 
     switch ($action) {
         case 'approve':
             // Mettre à jour les statistiques après l'inscription
             StatistiquesManager::calculerEtMettreAJour();
+            
             Reservation::updateStatut($id_reservation, 'approuvée');
             break;
         case 'reject':
             // Mettre à jour les statistiques après l'inscription
             StatistiquesManager::calculerEtMettreAJour();
+            
             Reservation::updateStatut($id_reservation, 'refusée');
             break;
         case 'complete':
             // Mettre à jour les statistiques après l'inscription
             StatistiquesManager::calculerEtMettreAJour();
+            
             Reservation::updateStatut($id_reservation, 'terminée');
             break;
         case 'cancel':
             StatistiquesManager::calculerEtMettreAJour();
+            
             Reservation::updateStatut($id_reservation, 'annuler');
             break;
     }
@@ -83,7 +90,7 @@ if ($search) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-900">
+<body class="bg-dark">
     <div class="flex flex-col md:flex-row min-h-screen">
         <!-- Sidebar - avec toggle pour mobile -->
         <nav id="sidebar"

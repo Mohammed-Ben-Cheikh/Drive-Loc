@@ -3,24 +3,19 @@ require_once __DIR__ . '/../database/Database.php';
 
 class Review
 {
-    private $id;
     private $id_user_fk;
     private $id_vehicule_fk;
     private $statut;
     private $rating;
     private $comment;
-    private $created_at;
-    private $updated_at;
 
     public function __construct(
-        $id = null,
         $id_user_fk,
         $id_vehicule_fk,
-        $statut = 'en attente',
+        $comment,
         $rating,
-        $comment
+        $statut = 'en attente'
     ) {
-        $this->id = $id;
         $this->id_user_fk = $id_user_fk;
         $this->id_vehicule_fk = $id_vehicule_fk;
         $this->statut = $statut;
@@ -93,7 +88,7 @@ class Review
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function update()
+    public function update($id)
     {
         $database = new Database();
         $db = $database->connect();
@@ -102,7 +97,7 @@ class Review
         $result = $stmt->execute([
             $this->rating,
             $this->comment,
-            $this->id
+            $id
         ]);
         $database->disconnect();
         return $result;

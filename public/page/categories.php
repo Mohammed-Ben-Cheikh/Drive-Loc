@@ -23,7 +23,7 @@ if (isset($_GET['page'])) {
 }
 
 $totalRows = Categorie::NbCategories();
-$rowsPerPage = 7;
+$rowsPerPage = 4;
 $totalPages = ceil($totalRows / $rowsPerPage);
 $categories = Categorie::GetCategories($rowsPerPage, $Page = 1);
 
@@ -36,7 +36,7 @@ $categories = Categorie::GetCategories($rowsPerPage, $Page = 1);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../../src/output.css">
-    <script src="https://cdn.tailwindcss.com/"></script>
+    <script src="http://localhost/Drive-Loc-/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -121,7 +121,7 @@ $categories = Categorie::GetCategories($rowsPerPage, $Page = 1);
 
         <!-- Categories Grid -->
         <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 overflow-hidden rounded-[2rem] bg-white/50 backdrop-blur-sm border-4 border-white shadow-2xl p-8 mt-8">
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 backdrop-blur-sm border-4 border-white shadow-2xl p-8 mt-8">
             <?php if (empty($categories)): ?>
                 <div
                     class="col-span-full flex flex-col items-center justify-center p-12 bg-gray-900/50 rounded-[2rem] backdrop-blur-sm">
@@ -184,76 +184,80 @@ $categories = Categorie::GetCategories($rowsPerPage, $Page = 1);
             <?php endif; ?>
         </div>
         <nav aria-label="Page navigation example">
-            <ul class="flex justify-center mt-5 space-x-3">
-                <!-- Previous Button -->
-                <li>
-                    <?php
-                    if ($page > 1) {
-                        $prevPage = $page - 1;
-                        echo "<a href='?page=$prevPage' class='px-4 py-2 text-white bg-blue-600 rounded-lg shadow-lg transition-transform transform hover:scale-105'>
-                        <span aria-hidden='true'>&laquo;</span> Previous
-                      </a>";
-                    } else {
-                        echo "<span class='px-4 py-2 text-gray-400 bg-gray-700 rounded-lg shadow-lg cursor-not-allowed'>
-                        <span aria-hidden='true'>&laquo;</span> Previous
-                      </span>";
-                    }
-                    ?>
-                </li>
+    <ul class="flex justify-center mt-5 space-x-3">
+        <!-- Previous Button -->
+        <li>
+            <?php
+            if ($page > 1) {
+                $prevPage = $page - 1;
+                echo "<a href='?page=$prevPage' class='px-4 py-2 text-white bg-blue-600 rounded-lg shadow-lg transition-transform transform hover:scale-105'>
+                <span aria-hidden='true'>&laquo;</span> Previous
+                </a>";
+            } else {
+                echo "<span class='px-4 py-2 text-gray-400 bg-gray-700 rounded-lg shadow-lg cursor-not-allowed'>
+                <span aria-hidden='true'>&laquo;</span> Previous
+                </span>";
+            }
+            ?>
+        </li>
 
-                <!-- Page Numbers -->
-                <?php
-                $startPage = max(1, $page - 2);
-                $endPage = min($totalPages, $page + 2);
+        <!-- Page Numbers -->
+        <?php
+        $startPage = max(1, $page - 2);
+        $endPage = min($totalPages, $page + 2);
 
-                if ($startPage > 1) {
-                    echo "<li><a href='?page=1' class='px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 hover:text-white'>1</a></li>";
-                    if ($startPage > 2) {
-                        echo "<li><span class='px-4 py-2 text-gray-500'>...</span></li>";
-                    }
-                }
+        // First Page Button
+        if ($startPage > 1) {
+            echo "<li><a href='?page=1' class='px-4 py-2 text-gray-900 " . ($page == 1 ? 'bg-blue-600 text-white' : 'bg-gray-100') . " border border-gray-300 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 hover:text-white'>1</a></li>";
+            if ($startPage > 2) {
+                echo "<li><span class='px-4 py-2 text-gray-500'>...</span></li>";
+            }
+        }
 
-                for ($i = $startPage; $i <= $endPage; $i++) {
-                    if ($page === $i) {
-                        echo "<li>
-                        <span class='px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg'>
-                            $i
-                        </span>
-                      </li>";
-                    } else {
-                        echo "<li>
-                        <a href='?page=$i' class='px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 hover:text-white'>
-                            $i
-                        </a>
-                      </li>";
-                    }
-                }
+        // Loop through page numbers
+        for ($i = $startPage; $i <= $endPage; $i++) {
+            if ($page === $i) {
+                echo "<li>
+                    <span class='px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg'>
+                        $i
+                    </span>
+                  </li>";
+            } else {
+                echo "<li>
+                    <a href='?page=$i' class='px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 hover:text-white'>
+                        $i
+                    </a>
+                  </li>";
+            }
+        }
 
-                if ($endPage < $totalPages) {
-                    if ($endPage < $totalPages - 1) {
-                        echo "<li><span class='px-4 py-2 text-gray-500'>...</span></li>";
-                    }
-                    echo "<li><a href='?page=$totalPages' class='px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 hover:text-white'>$totalPages</a></li>";
-                }
-                ?>
+        // Last Page Button
+        if ($endPage < $totalPages) {
+            if ($endPage < $totalPages - 1) {
+                echo "<li><span class='px-4 py-2 text-gray-500'>...</span></li>";
+            }
+            echo "<li><a href='?page=$totalPages' class='px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 hover:text-white'>$totalPages</a></li>";
+        }
+        ?>
 
-                <!-- Next Button -->
-                <li>
-                    <?php
-                    if ($page < $totalPages) {
-                        $nextPage = $page + 1;
-                        echo "<a href='?page=$nextPage' class='px-4 py-2 text-white bg-blue-600 rounded-lg shadow-lg transition-transform transform hover:scale-105'>
-                        Next <span aria-hidden='true'>&raquo;</span>
-                      </a>";
-                    } else {
-                        echo "<span class='px-4 py-2 text-gray-400 bg-gray-700 rounded-lg shadow-lg cursor-not-allowed'>
-                        Next <span aria-hidden='true'>&raquo;</span>
-                      </span>";
-                    }
-                    ?>
-                </li>
-            </ul>
-        </nav>
+        <!-- Next Button -->
+        <li>
+            <?php
+            if ($page < $totalPages) {
+                $nextPage = $page + 1;
+                echo "<a href='?page=$nextPage' class='px-4 py-2 text-white bg-blue-600 rounded-lg shadow-lg transition-transform transform hover:scale-105'>
+                Next <span aria-hidden='true'>&raquo;</span>
+                </a>";
+            } else {
+                echo "<span class='px-4 py-2 text-gray-400 bg-gray-700 rounded-lg shadow-lg cursor-not-allowed'>
+                Next <span aria-hidden='true'>&raquo;</span>
+                </span>";
+            }
+            ?>
+        </li>
+    </ul>
+</nav>
+
 
     </main>
     <footer class="bg-gradient-to-t from-blue-400 to-blue-600 rounded-[2rem] shadow-2xl border-4 border-white/20 mt-8">

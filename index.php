@@ -1,9 +1,9 @@
 <?php
 session_start();
 if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
-    header("Location: ./public");
+    header("Location: public");
 } else if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']){
-    header("Location: ./dashboard");
+    header("Location: dashboard");
 }
 ?>
 <!DOCTYPE html>

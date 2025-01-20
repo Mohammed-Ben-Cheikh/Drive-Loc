@@ -1,3 +1,40 @@
+<?php
+session_start();
+if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
+    header("Location: ../../../dashboard");
+    exit();
+} else if (!isset($_SESSION['user_id']) || !$_SESSION['user_id']) {
+    header("Location: ../../../index.php");
+    exit();
+}
+
+require_once "../../controller/reviews.php";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $id_vehicule = isset($_POST['id_vehicule']) ? intval($_POST['id_vehicule']) : null;
+    $rating = isset($_POST['rating']) ? intval($_POST['rating']) : null;
+    $comment = isset($_POST['review']) ? trim(htmlspecialchars($_POST['review'])) : null;
+
+    if ($id_vehicule && $rating && $comment) {
+        // Create a new review instance
+        $reviews = new Review(
+            null,
+            $id_vehicule,
+            'en attente', 
+            $rating,
+            $comment
+        );
+
+        if ($reviews->create()) {
+            header("Location: success_page.php");
+            exit;
+        }
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -6,6 +43,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiche Technique - DriveLoc</title>
     <link rel="stylesheet" href="../../../src/output.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* Swiper Navigation Customization */
+        .swiper-button-next,
+        .swiper-button-prev {
+            width: 3rem;
+            height: 3rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            background: rgba(255, 255, 255, 0.8);
+            color: black;
+            transform: scale(1.2);
+        }
+
+        /* Card Hover Effects */
+        .group:hover {
+            box-shadow: 0 12px 30px rgba(255, 193, 7, 0.3), 0 8px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        /* Button Glow Effect */
+        button:hover {
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6);
+        }
+
+        /* Smooth Scrollbar for Horizontal Scrolling */
+        .swiper-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        .swiper-container::-webkit-scrollbar {
+            height: 8px;
+            background: transparent;
+        }
+
+        .swiper-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 flex-col p-4 space-y-8">
@@ -15,7 +103,7 @@
             <div
                 class="flex justify-center items-center rounded-lg w-44 h-10 bg-[#e0e0e0] [box-shadow:inset_15px_15px_33px_#bebebe,_inset_-15px_-15px_33px_#ffffff]">
                 <a href="../../../public/page/vehicules.php" class="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div class="relative group">
+                    <div class="relative">
                         <div
                             class="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-400 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
                         </div>
@@ -28,7 +116,7 @@
                 class="flex justify-center items-center rounded-lg w-52 h-10 bg-[#e0e0e0] [box-shadow:inset_15px_15px_33px_#bebebe,_inset_-15px_-15px_33px_#ffffff]">
                 <a href="../../../public/page/vehicules.php"
                     class="flex items-center space-x-3 rtl:space-x-reverse p-3">
-                    <div class="relative group">
+                    <div class="relative">
                         <div
                             class="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-400 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
                         </div>
@@ -52,7 +140,7 @@
                     ?>
                     <div class="grid md:grid-cols-2 gap-8">
                         <!-- Image Section -->
-                        <div class="relative group space-x-4 space-y-4">
+                        <div class="relative space-x-4 space-y-4">
                             <img src="<?php echo htmlspecialchars($vehicule['image_url']); ?>"
                                 alt="<?php echo htmlspecialchars($vehicule['nom']); ?>"
                                 class="rounded-[2rem] shadow-2xl w-full h-[400px] sm:h-full  object-cover">
@@ -167,6 +255,224 @@
             }
             ?>
         </section>
+        <!-- reviews Section -->
+        <section
+            class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-700 shadow-2xl p-8 mt-12">
+            <div class="relative text-white">
+                <!-- Header Section -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold tracking-wide">Avis de nos clients</h2>
+                    <button type="button" id="openModal"
+                        class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold py-3 px-6 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105">
+                        Ajouter un avis
+                    </button>
+                </div>
+                <!-- Carrousel -->
+                <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                        <?php for ($i = 0; $i < 9; $i++): ?>
+                            <div
+                                class="swiper-slide group bg-gray-800 rounded-xl transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+                                <div class="p-6">
+                                    <!-- User Info -->
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=John+Doe" alt="John Doe"
+                                                class="w-12 h-12 rounded-full border border-gray-600 mr-3">
+                                            <div>
+                                                <h3 class="font-bold text-lg">John Doe</h3>
+                                                <p class="text-sm text-gray-400">Il y a 2 jours</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-1 text-yellow-400">
+                                            <?php for ($j = 0; $j < 5; $j++): ?>
+                                                <i class="fas fa-star"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+                                    <!-- Review Text -->
+                                    <p class="text-gray-300 text-sm italic mb-4">
+                                        "Service exceptionnel, voiture en excellent état et équipe très professionnelle. Je
+                                        recommande vivement !"
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div id="reviewModal" class="fixed inset-0 bg-black/75 z-50 hidden">
+            <!-- Modal Content -->
+            <div class="bg-white dark:bg-gray-800 w-full max-w-md mx-4 rounded-xl shadow-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Laisser un Avis</h2>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+                        ✕
+                    </button>
+                </div>
+
+                <form id="reviewForm">
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Note</label>
+                        <div class="flex gap-1">
+                            <span data-rating="1" class="star text-3xl cursor-pointer text-gray-300"><i
+                                    class="fas fa-star"></i></span>
+                            <span data-rating="2" class="star text-3xl cursor-pointer text-gray-300"><i
+                                    class="fas fa-star"></i></span>
+                            <span data-rating="3" class="star text-3xl cursor-pointer text-gray-300"><i
+                                    class="fas fa-star"></i></span>
+                            <span data-rating="4" class="star text-3xl cursor-pointer text-gray-300"><i
+                                    class="fas fa-star"></i></span>
+                            <span data-rating="5" class="star text-3xl cursor-pointer text-gray-300"><i
+                                    class="fas fa-star"></i></span>
+                        </div>
+                        <!-- Input caché pour stocker la valeur -->
+                        <input type="hidden" name="rating" id="ratingInput" value="0">
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="mb-6">
+                        <label for="review" class="block text-gray-700 mb-2">Votre Commentaire</label>
+                        <textarea id="review" name="review" rows="4" required
+                            class="w-full rounded-lg border-gray-300 border p-3 focus:border-blue-500"
+                            placeholder="Partagez votre expérience..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                        class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Soumettre l'Avis
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Elements
+                const modal = document.getElementById('reviewModal');
+                const addReviewButton = document.getElementById('openModal');
+                const closeBtn = document.getElementById('closeModal');
+                const form = document.getElementById('reviewForm');
+                const stars = document.querySelectorAll('.star');
+                const ratingInput = document.getElementById('ratingInput');
+                let currentRating = 0;
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+
+                    if (ratingInput.value === '0') {
+                        alert('Veuillez sélectionner une note');
+                        return;
+                    }
+
+                    // Continuez avec la soumission du formulaire
+                    console.log('Note sélectionnée:', ratingInput.value);
+                    // ... reste de votre code de soumission
+                });
+
+                // Action du bouton "Ajouter un avis"
+                addReviewButton.onclick = function () {
+                    modal.classList.remove('hidden');
+                };
+
+                // Close modal
+                closeBtn.onclick = function () {
+                    modal.classList.add('hidden');
+                }
+
+                // Star rating
+                stars.forEach((star, index) => {
+                    // Hover effect
+                    star.addEventListener('mouseover', () => {
+                        updateStars(index + 1);
+                    });
+
+                    star.addEventListener('mouseout', () => {
+                        updateStars(currentRating);
+                    });
+
+                    // Click effect
+                    star.addEventListener('click', () => {
+                        currentRating = index + 1;
+                        ratingInput.value = currentRating;
+                        updateStars(currentRating);
+                    });
+                });
+
+                function updateStars(count) {
+                    stars.forEach((star, index) => {
+                        star.style.color = index < count ? '#fbbf24' : '#d1d5db';
+                    });
+                }
+
+                // Form submission
+                form.onsubmit = async function (e) {
+                    e.preventDefault();
+
+                    if (currentRating === 0) {
+                        alert('Veuillez sélectionner une note');
+                        return;
+                    }
+
+                    const formData = new FormData(form);
+
+                    try {
+                        // For testing - log the data
+                        console.log({
+                            rating: formData.get('rating'),
+                            review: formData.get('review')
+                        });
+
+                        // Here you would normally send to server
+                        const response = await fetch('ficheTechnique.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        alert('Merci pour votre avis !');
+                        form.reset();
+                        currentRating = 0;
+                        updateStars(0);
+                        modal.classList.add('hidden');
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Une erreur est survenue');
+                    }
+                }
+
+                // Close on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        modal.classList.add('hidden');
+                    }
+                });
+
+                // Close on outside click
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        </script>
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const swiper = new Swiper('.swiper-container', {
+                    loop: false,
+                    spaceBetween: 20,
+                    slidesPerView: 1,
+                    breakpoints: {
+                        640: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 },
+                    },
+                });
+            });
+        </script>
     </main>
 
     <footer class="bg-gradient-to-t from-blue-400 to-blue-600 rounded-[2rem] shadow-2xl border-4 border-white/20 mt-8">

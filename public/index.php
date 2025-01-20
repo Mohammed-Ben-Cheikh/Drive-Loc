@@ -14,7 +14,7 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DriveLoc</title>
     <link rel="stylesheet" href="../src/output.css">
-    <script src="https://cdn.tailwindcss.com/"></script>
+    <script src="http://localhost/Drive-Loc-/tailwindcss.js"></script>
     <link rel="stylesheet" href="../public/css/style.css">
 </head>
 

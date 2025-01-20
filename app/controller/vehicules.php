@@ -229,20 +229,6 @@ class Vehicule
         return $result;
     }
 
-    public static function updateDisponibilite($id, $disponibilite) {
-        if (!in_array($disponibilite, ['Disponible', 'Indisponible', 'Réservé'])) {
-            throw new InvalidArgumentException("Statut de disponibilité invalide");
-        }
-
-        $database = new Database();
-        $db = $database->connect();
-        $sql = "UPDATE vehicules SET disponibilite = ? WHERE id_vehicule = ?";
-        $stmt = $db->prepare($sql);
-        $result = $stmt->execute([$disponibilite, $id]);
-        $database->disconnect();
-        return $result;
-    }
-
     public static function isAvailable($id) {
         $database = new Database();
         $db = $database->connect();
