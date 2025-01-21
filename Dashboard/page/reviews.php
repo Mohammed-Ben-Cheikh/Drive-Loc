@@ -8,7 +8,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
 
 require_once "../../app/controller/reviews.php";
 require_once "../../app/controller/users.php";
-
 require_once '../../app/controller/statistiquesManager.php';
 
 $stats = StatistiquesManager::getRStats();

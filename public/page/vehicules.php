@@ -6,21 +6,9 @@ if (isset($_SESSION['admin_id']) && $_SESSION['admin_id']) {
     header("Location: ../../index.php");
 }
 
-require_once '../../app/controller/vehicules.php';
 require_once '../../app/controller/categories.php';
 
-// Get all available vehicles and categories
-
 $categories = Categorie::getAll();
-$vehicles = Vehicule::getAll();
-
-// Filter by category if set
-$selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
-if ($selectedCategory) {
-    $vehicles = array_filter($vehicles, function ($vehicle) use ($selectedCategory) {
-        return $vehicle['id_categorie_fk'] == $selectedCategory;
-    });
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -106,7 +94,7 @@ if ($selectedCategory) {
                         class="p-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Toutes les catégories</option>
                         <?php foreach ($categories as $category): ?>
-                            <option value="<?= $category['id_categorie'] ?>" <?= $selectedCategory == $category['id_categorie'] ? 'selected' : '' ?>>
+                            <option value="<?= $category['id_categorie'] ?>">
                                 <?= htmlspecialchars($category['nom']) ?>
                             </option>
                         <?php endforeach; ?>
